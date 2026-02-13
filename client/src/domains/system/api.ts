@@ -3,7 +3,7 @@
  */
 
 import { apiClient } from '@/core/api/client';
-import type { DBCheckResponse } from './types';
+import type { DBCheckResponse, MSSQLConnectionConfig } from './types';
 
 /**
  * 데이터베이스 연결 테스트
@@ -18,9 +18,10 @@ export const checkDatabaseConnection = async (): Promise<DBCheckResponse> => {
 /**
  * MSSQL 데이터베이스 연결 테스트
  *
+ * @param config - MSSQL 연결 설정
  * @returns MSSQL DB 연결 테스트 결과
  */
-export const checkMSSQLConnection = async (): Promise<DBCheckResponse> => {
-  const response = await apiClient.get<DBCheckResponse>('/v1/system/mssql-check');
+export const checkMSSQLConnection = async (config: MSSQLConnectionConfig): Promise<DBCheckResponse> => {
+  const response = await apiClient.post<DBCheckResponse>('/v1/system/mssql-check', config);
   return response.data;
 };

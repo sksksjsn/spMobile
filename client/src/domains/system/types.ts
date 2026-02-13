@@ -10,3 +10,15 @@ export interface DBCheckResponse {
   message: string;
   timestamp: string;
 }
+
+/**
+ * MSSQL 연결 설정
+ */
+export interface MSSQLConnectionConfig {
+  driver: string;
+  server: string;
+  database: string;
+  username: string;
+  password: string;
+  timeout: number;
+}

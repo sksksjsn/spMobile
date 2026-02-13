@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Activity, Zap, ArrowRight, Database, FileCode, BookOpen, Layers, Layout, Code } from 'lucide-react';
 import { LoadingOverlay } from './core/loading';
 import { DocumentViewer } from './components/DocumentViewer';
+import { MSSQLConnectionModal } from './components/MSSQLConnectionModal';
 import { checkDatabaseConnection, checkMSSQLConnection } from './domains/system/api';
 import { toast } from './core/utils/toast';
+import type { MSSQLConnectionConfig } from './domains/system/types';
 
 interface DocumentConfig {
   title: string;
@@ -22,6 +24,7 @@ function App() {
     title: '',
     filePath: '',
   });
+  const [isMSSQLModalOpen, setIsMSSQLModalOpen] = useState(false);
 
   const documents: Record<string, DocumentConfig> = {
     overview: { title: '프로젝트 개요', filePath: '/README.md' },
@@ -71,9 +74,10 @@ function App() {
   };
 
   // MSSQL 연결 테스트 핸들러
-  const handleMSSQLCheck = async () => {
+  const handleMSSQLCheck = async (config: MSSQLConnectionConfig) => {
+    setIsMSSQLModalOpen(false); // 모달 닫기
     try {
-      const result = await checkMSSQLConnection();
+      const result = await checkMSSQLConnection(config);
       toast.success(result.message);
     } catch (error: any) {
       const errorMessage = error?.message || 'MSSQL 연결 실패';
@@ -92,6 +96,13 @@ function App() {
         onClose={closeDocument}
         title={documentViewer.title}
         filePath={documentViewer.filePath}
+      />
+
+      {/* MSSQL 연결 모달 */}
+      <MSSQLConnectionModal
+        isOpen={isMSSQLModalOpen}
+        onClose={() => setIsMSSQLModalOpen(false)}
+        onSubmit={handleMSSQLCheck}
       />
 
       <div className="min-h-screen bg-mesh selection:bg-indigo-100">
@@ -139,7 +150,7 @@ function App() {
                 DB 연결 테스트
               </button>
               <button
-                onClick={handleMSSQLCheck}
+                onClick={() => setIsMSSQLModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold hover:bg-purple-100 transition-all active:scale-95 border border-purple-200"
                 title="MSSQL DB 연결 테스트"
               >
