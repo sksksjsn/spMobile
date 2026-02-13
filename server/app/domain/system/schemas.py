@@ -34,6 +34,7 @@ class MSSQLConnectionRequest(BaseModel):
         description="MSSQL ODBC 드라이버 이름"
     )
     server: str = Field(..., description="MSSQL 서버 주소")
+    port: int = Field(default=1433, description="MSSQL 포트 번호", ge=1, le=65535)
     database: str = Field(default="master", description="데이터베이스명")
     username: str = Field(..., description="사용자명")
     password: str = Field(..., description="비밀번호")

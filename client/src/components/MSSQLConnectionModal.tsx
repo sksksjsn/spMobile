@@ -12,6 +12,7 @@ export function MSSQLConnectionModal({ isOpen, onClose, onSubmit }: MSSQLConnect
   const [config, setConfig] = useState<MSSQLConnectionConfig>({
     driver: 'ODBC Driver 17 for SQL Server',
     server: 'localhost',
+    port: 1433,
     database: 'master',
     username: 'sa',
     password: '',
@@ -61,6 +62,22 @@ export function MSSQLConnectionModal({ isOpen, onClose, onSubmit }: MSSQLConnect
               onChange={(e) => setConfig({ ...config, server: e.target.value })}
               className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               placeholder="localhost 또는 IP 주소"
+            />
+          </div>
+
+          {/* Port */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              포트
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="65535"
+              value={config.port}
+              onChange={(e) => setConfig({ ...config, port: parseInt(e.target.value) || 1433 })}
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              placeholder="1433"
             />
           </div>
 
