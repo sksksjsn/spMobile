@@ -133,6 +133,7 @@ npm run dev
 - ✅ Request ID 추적 로깅
 - ✅ 전역 예외 처리
 - ✅ Health Check & Version API
+- ✅ MSSQL 데이터베이스 연결 테스트
 
 ### 프론트엔드
 - ✅ React 19 + TypeScript
@@ -141,6 +142,70 @@ npm run dev
 - ✅ API 클라이언트 (Axios)
 - ✅ 전역 에러/로딩 처리
 - ✅ 반응형 레이아웃
+- ✅ MSSQL 연결 모달 및 테스트 UI
+
+---
+
+## 🗄️ MSSQL 연결 테스트 기능
+
+이 프로젝트는 외부 MSSQL 데이터베이스 연결 테스트 기능을 제공합니다.
+
+### 기능 개요
+- 웹 UI에서 "MSSQL 연결 테스트" 버튼 클릭
+- 팝업 모달에서 DB 정보 입력 (서버, 데이터베이스, 사용자명, 비밀번호 등)
+- 실시간 연결 테스트 및 결과 확인
+
+### 사용 방법
+
+1. **프론트엔드에서 사용**:
+   - 메인 페이지 네비게이션의 "MSSQL 연결 테스트" 버튼 클릭
+   - 모달에서 연결 정보 입력:
+     - 서버 주소 (예: `localhost` 또는 IP)
+     - 데이터베이스명 (기본: `master`)
+     - 사용자명
+     - 비밀번호
+     - (고급) ODBC 드라이버 및 타임아웃 설정
+   - "연결 테스트" 클릭하여 결과 확인
+
+2. **API 직접 호출**:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/system/mssql-check \
+     -H "Content-Type: application/json" \
+     -d '{
+       "server": "localhost",
+       "database": "master",
+       "username": "sa",
+       "password": "YourPassword123",
+       "driver": "ODBC Driver 17 for SQL Server",
+       "timeout": 5
+     }'
+   ```
+
+### 사전 요구사항 (Production 환경)
+
+Linux/Ubuntu 환경에서 MSSQL 연결 기능을 사용하려면 다음 패키지를 설치해야 합니다:
+
+```bash
+# 1. unixODBC 설치
+sudo apt-get update
+sudo apt-get install -y unixodbc unixodbc-dev
+
+# 2. Microsoft ODBC Driver for SQL Server 설치
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+sudo apt-get update
+sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
+
+# 3. 설치 확인
+odbcinst -j
+```
+
+Windows 환경에서는 [Microsoft ODBC Driver](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)를 다운로드하여 설치하세요.
+
+### 보안 주의사항
+- 입력된 연결 정보는 **저장되지 않으며** 연결 테스트에만 사용됩니다
+- 민감한 정보는 로그에 기록되지 않습니다
+- Production 환경에서는 방화벽 및 네트워크 보안 설정을 확인하세요
 
 ---
 
