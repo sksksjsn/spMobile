@@ -17,6 +17,7 @@ export interface DBCheckResponse {
 export interface MSSQLConnectionConfig {
   driver: string;
   server: string;
+  port: number;
   database: string;
   username: string;
   password: string;

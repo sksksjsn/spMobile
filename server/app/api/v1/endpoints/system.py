@@ -35,6 +35,7 @@ def test_mssql_connection(config: MSSQLConnectionRequest) -> bool:
         # 연결 시도 (pymssql은 ODBC 드라이버 없이 직접 연결)
         conn = pymssql.connect(
             server=config.server,
+            port=config.port,
             user=config.username,
             password=config.password,
             database=config.database,
@@ -137,7 +138,7 @@ async def check_mssql_connection(config: MSSQLConnectionRequest) -> DBCheckRespo
 
         return DBCheckResponse(
             success=True,
-            message=f"MSSQL 데이터베이스 연결 성공! (Server: {config.server}, Database: {config.database})",
+            message=f"MSSQL 데이터베이스 연결 성공! (Server: {config.server}:{config.port}, Database: {config.database})",
             timestamp=datetime.utcnow(),
         )
 
