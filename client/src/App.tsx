@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Activity, Zap, ArrowRight, Database, FileCode, BookOpen, Layers, Layout, Code } from 'lucide-react';
 import { LoadingOverlay } from './core/loading';
 import { DocumentViewer } from './components/DocumentViewer';
-import { checkDatabaseConnection } from './domains/system/api';
+import { checkDatabaseConnection, checkMSSQLConnection } from './domains/system/api';
 import { toast } from './core/utils/toast';
 
 interface DocumentConfig {
@@ -70,6 +70,17 @@ function App() {
     }
   };
 
+  // MSSQL 연결 테스트 핸들러
+  const handleMSSQLCheck = async () => {
+    try {
+      const result = await checkMSSQLConnection();
+      toast.success(result.message);
+    } catch (error: any) {
+      const errorMessage = error?.message || 'MSSQL 연결 실패';
+      toast.error(errorMessage);
+    }
+  };
+
   return (
     <>
       {/* 전역 로딩 오버레이 */}
@@ -126,6 +137,14 @@ function App() {
               >
                 <Database size={14} />
                 DB 연결 테스트
+              </button>
+              <button
+                onClick={handleMSSQLCheck}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold hover:bg-purple-100 transition-all active:scale-95 border border-purple-200"
+                title="MSSQL DB 연결 테스트"
+              >
+                <Database size={14} />
+                MSSQL 연결 테스트
               </button>
               <button className="bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all active:scale-95">
                 시작하기

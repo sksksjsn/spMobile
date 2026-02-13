@@ -14,3 +14,13 @@ export const checkDatabaseConnection = async (): Promise<DBCheckResponse> => {
   const response = await apiClient.get<DBCheckResponse>('/v1/system/db-check');
   return response.data;
 };
+
+/**
+ * MSSQL 데이터베이스 연결 테스트
+ *
+ * @returns MSSQL DB 연결 테스트 결과
+ */
+export const checkMSSQLConnection = async (): Promise<DBCheckResponse> => {
+  const response = await apiClient.get<DBCheckResponse>('/v1/system/mssql-check');
+  return response.data;
+};
