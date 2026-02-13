@@ -72,3 +72,4 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+test_mssql_connection.py
