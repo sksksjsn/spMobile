@@ -15,6 +15,47 @@ from server.app.domain.system.schemas import DBCheckResponse
 router = APIRouter(prefix="/system", tags=["system"])
 
 
+def test_mssql_connection() -> bool:
+    """
+    MSSQL 데이터베이스 연결 테스트
+
+    Returns:
+        bool: 연결 성공 시 True, 실패 시 False
+    """
+    try:
+        import pyodbc
+
+        # MSSQL 연결 문자열 (환경변수나 설정에서 가져와야 함)
+        # 예시: 실제 환경에서는 .env 파일에서 읽어와야 함
+        connection_string = (
+            "DRIVER={ODBC Driver 17 for SQL Server};"
+            "SERVER=localhost;"
+            "DATABASE=master;"
+            "UID=sa;"
+            "PWD=YourPassword;"
+        )
+
+        # 연결 시도
+        conn = pyodbc.connect(connection_string, timeout=5)
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        return True
+    except ImportError:
+        raise HTTPException(
+            status_code=500,
+            detail="pyodbc 패키지가 설치되지 않았습니다. pip install pyodbc를 실행하세요.",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"MSSQL 연결 실패: {str(e)}",
+        )
+
+
 @router.get(
     "/db-check",
     response_model=DBCheckResponse,
@@ -62,4 +103,40 @@ async def check_database_connection(
         raise HTTPException(
             status_code=500,
             detail=f"데이터베이스 연결 테스트 실패: {str(e)}",
+        )
+
+
+@router.get(
+    "/mssql-check",
+    response_model=DBCheckResponse,
+    summary="MSSQL 데이터베이스 연결 테스트",
+    description="MSSQL 데이터베이스 연결 상태를 확인합니다.",
+)
+async def check_mssql_connection() -> DBCheckResponse:
+    """
+    MSSQL 데이터베이스 연결 테스트
+
+    MSSQL 서버에 연결하여 상태를 확인합니다.
+
+    Returns:
+        DBCheckResponse: 연결 상태 및 메시지
+
+    Raises:
+        HTTPException: 연결 실패 시 500 에러
+    """
+    try:
+        test_mssql_connection()
+
+        return DBCheckResponse(
+            success=True,
+            message="MSSQL 데이터베이스 연결 성공!",
+            timestamp=datetime.utcnow(),
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"MSSQL 데이터베이스 연결 테스트 실패: {str(e)}",
         )
