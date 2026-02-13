@@ -181,26 +181,17 @@ npm run dev
      }'
    ```
 
-### 사전 요구사항 (Production 환경)
+### 사전 요구사항
 
-Linux/Ubuntu 환경에서 MSSQL 연결 기능을 사용하려면 다음 패키지를 설치해야 합니다:
+**좋은 소식!** 이 프로젝트는 `pymssql`을 사용하므로 **시스템 ODBC 드라이버 설치가 필요 없습니다**.
+
+Python 의존성만 설치하면 됩니다:
 
 ```bash
-# 1. unixODBC 설치
-sudo apt-get update
-sudo apt-get install -y unixodbc unixodbc-dev
-
-# 2. Microsoft ODBC Driver for SQL Server 설치
-curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-sudo apt-get update
-sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
-
-# 3. 설치 확인
-odbcinst -j
+pip install -r requirements.txt
 ```
 
-Windows 환경에서는 [Microsoft ODBC Driver](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)를 다운로드하여 설치하세요.
+`pymssql`은 FreeTDS를 내장하고 있어 별도의 시스템 패키지 없이도 MSSQL에 연결할 수 있습니다.
 
 ### 보안 주의사항
 - 입력된 연결 정보는 **저장되지 않으며** 연결 테스트에만 사용됩니다

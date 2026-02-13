@@ -30,19 +30,17 @@ def test_mssql_connection(config: MSSQLConnectionRequest) -> bool:
         HTTPException: 연결 실패 시 500 에러
     """
     try:
-        import pyodbc
+        import pymssql
 
-        # 요청 바디에서 받은 MSSQL 연결 정보로 연결 문자열 생성
-        connection_string = (
-            f"DRIVER={{{config.driver}}};"
-            f"SERVER={config.server};"
-            f"DATABASE={config.database};"
-            f"UID={config.username};"
-            f"PWD={config.password};"
+        # 연결 시도 (pymssql은 ODBC 드라이버 없이 직접 연결)
+        conn = pymssql.connect(
+            server=config.server,
+            user=config.username,
+            password=config.password,
+            database=config.database,
+            timeout=config.timeout,
+            login_timeout=config.timeout,
         )
-
-        # 연결 시도
-        conn = pyodbc.connect(connection_string, timeout=config.timeout)
         cursor = conn.cursor()
         cursor.execute("SELECT 1")
         cursor.fetchone()
@@ -53,7 +51,7 @@ def test_mssql_connection(config: MSSQLConnectionRequest) -> bool:
     except ImportError:
         raise HTTPException(
             status_code=500,
-            detail="pyodbc 패키지가 설치되지 않았습니다. pip install pyodbc를 실행하세요.",
+            detail="pymssql 패키지가 설치되지 않았습니다. pip install pymssql을 실행하세요.",
         )
     except Exception as e:
         raise HTTPException(
