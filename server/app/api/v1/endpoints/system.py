@@ -8,6 +8,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from server.app.core.config import settings
 from server.app.core.database import get_db
 from server.app.domain.system.repositories import ConnectionTestRepository
 from server.app.domain.system.schemas import DBCheckResponse
@@ -19,24 +20,34 @@ def test_mssql_connection() -> bool:
     """
     MSSQL 데이터베이스 연결 테스트
 
+    환경변수 MSSQL_ENABLED=False인 경우 Mock 응답을 반환합니다.
+    환경변수 MSSQL_ENABLED=True인 경우 실제 MSSQL 서버에 연결을 시도합니다.
+
     Returns:
-        bool: 연결 성공 시 True, 실패 시 False
+        bool: 연결 성공 시 True
+
+    Raises:
+        HTTPException: 연결 실패 시 500 에러
     """
+    # Mock 모드: MSSQL 서버 없이 성공 응답
+    if not settings.MSSQL_ENABLED:
+        return True
+
+    # 실제 MSSQL 연결 시도
     try:
         import pyodbc
 
-        # MSSQL 연결 문자열 (환경변수나 설정에서 가져와야 함)
-        # 예시: 실제 환경에서는 .env 파일에서 읽어와야 함
+        # 환경변수에서 MSSQL 연결 정보 가져오기
         connection_string = (
-            "DRIVER={ODBC Driver 17 for SQL Server};"
-            "SERVER=localhost;"
-            "DATABASE=master;"
-            "UID=sa;"
-            "PWD=YourPassword;"
+            f"DRIVER={{{settings.MSSQL_DRIVER}}};"
+            f"SERVER={settings.MSSQL_SERVER};"
+            f"DATABASE={settings.MSSQL_DATABASE};"
+            f"UID={settings.MSSQL_USER};"
+            f"PWD={settings.MSSQL_PASSWORD};"
         )
 
         # 연결 시도
-        conn = pyodbc.connect(connection_string, timeout=5)
+        conn = pyodbc.connect(connection_string, timeout=settings.MSSQL_TIMEOUT)
         cursor = conn.cursor()
         cursor.execute("SELECT 1")
         cursor.fetchone()
@@ -116,7 +127,8 @@ async def check_mssql_connection() -> DBCheckResponse:
     """
     MSSQL 데이터베이스 연결 테스트
 
-    MSSQL 서버에 연결하여 상태를 확인합니다.
+    MSSQL_ENABLED=False(기본값): Mock 응답 반환
+    MSSQL_ENABLED=True: 실제 MSSQL 서버에 연결 시도
 
     Returns:
         DBCheckResponse: 연결 상태 및 메시지
@@ -127,9 +139,15 @@ async def check_mssql_connection() -> DBCheckResponse:
     try:
         test_mssql_connection()
 
+        # Mock 모드와 실제 연결 모드에 따라 다른 메시지 반환
+        if settings.MSSQL_ENABLED:
+            message = f"MSSQL 데이터베이스 연결 성공! (Server: {settings.MSSQL_SERVER})"
+        else:
+            message = "MSSQL 연결 테스트 성공! (Mock 모드 - .env에서 MSSQL_ENABLED=True로 설정하여 실제 연결 테스트)"
+
         return DBCheckResponse(
             success=True,
-            message="MSSQL 데이터베이스 연결 성공!",
+            message=message,
             timestamp=datetime.utcnow(),
         )
 
