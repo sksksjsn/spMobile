@@ -8,35 +8,41 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from server.app.core.config import settings
 from server.app.core.database import get_db
 from server.app.domain.system.repositories import ConnectionTestRepository
-from server.app.domain.system.schemas import DBCheckResponse
+from server.app.domain.system.schemas import DBCheckResponse, MSSQLConnectionRequest
 
 router = APIRouter(prefix="/system", tags=["system"])
 
 
-def test_mssql_connection() -> bool:
+def test_mssql_connection(config: MSSQLConnectionRequest) -> bool:
     """
     MSSQL 데이터베이스 연결 테스트
 
+    Args:
+        config: MSSQL 연결 정보
+
     Returns:
-        bool: 연결 성공 시 True, 실패 시 False
+        bool: 연결 성공 시 True
+
+    Raises:
+        HTTPException: 연결 실패 시 500 에러
     """
     try:
         import pyodbc
 
-        # MSSQL 연결 문자열 (환경변수나 설정에서 가져와야 함)
-        # 예시: 실제 환경에서는 .env 파일에서 읽어와야 함
+        # 요청 바디에서 받은 MSSQL 연결 정보로 연결 문자열 생성
         connection_string = (
-            "DRIVER={ODBC Driver 17 for SQL Server};"
-            "SERVER=localhost;"
-            "DATABASE=master;"
-            "UID=sa;"
-            "PWD=YourPassword;"
+            f"DRIVER={{{config.driver}}};"
+            f"SERVER={config.server};"
+            f"DATABASE={config.database};"
+            f"UID={config.username};"
+            f"PWD={config.password};"
         )
 
         # 연결 시도
-        conn = pyodbc.connect(connection_string, timeout=5)
+        conn = pyodbc.connect(connection_string, timeout=config.timeout)
         cursor = conn.cursor()
         cursor.execute("SELECT 1")
         cursor.fetchone()
@@ -106,17 +112,21 @@ async def check_database_connection(
         )
 
 
-@router.get(
+@router.post(
     "/mssql-check",
     response_model=DBCheckResponse,
     summary="MSSQL 데이터베이스 연결 테스트",
-    description="MSSQL 데이터베이스 연결 상태를 확인합니다.",
+    description="사용자가 입력한 MSSQL 연결 정보로 연결 테스트를 수행합니다.",
 )
-async def check_mssql_connection() -> DBCheckResponse:
+async def check_mssql_connection(config: MSSQLConnectionRequest) -> DBCheckResponse:
     """
     MSSQL 데이터베이스 연결 테스트
 
-    MSSQL 서버에 연결하여 상태를 확인합니다.
+    요청 바디로 받은 MSSQL 연결 정보로 실제 연결을 시도합니다.
+    민감한 정보는 저장되지 않으며 연결 테스트에만 사용됩니다.
+
+    Args:
+        config: MSSQL 연결 정보 (서버, 데이터베이스, 사용자명, 비밀번호 등)
 
     Returns:
         DBCheckResponse: 연결 상태 및 메시지
@@ -125,11 +135,11 @@ async def check_mssql_connection() -> DBCheckResponse:
         HTTPException: 연결 실패 시 500 에러
     """
     try:
-        test_mssql_connection()
+        test_mssql_connection(config)
 
         return DBCheckResponse(
             success=True,
-            message="MSSQL 데이터베이스 연결 성공!",
+            message=f"MSSQL 데이터베이스 연결 성공! (Server: {config.server}, Database: {config.database})",
             timestamp=datetime.utcnow(),
         )
 

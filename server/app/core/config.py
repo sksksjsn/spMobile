@@ -99,6 +99,38 @@ class Settings(BaseSettings):
         description="데이터베이스 커넥션 풀 최대 오버플로우"
     )
 
+    # ====================
+    # MSSQL Settings
+    # ====================
+    MSSQL_ENABLED: bool = Field(
+        default=False,
+        description="MSSQL 연결 테스트 활성화 여부"
+    )
+    MSSQL_DRIVER: str = Field(
+        default="ODBC Driver 17 for SQL Server",
+        description="MSSQL ODBC 드라이버 이름"
+    )
+    MSSQL_SERVER: str = Field(
+        default="localhost",
+        description="MSSQL 서버 주소"
+    )
+    MSSQL_DATABASE: str = Field(
+        default="master",
+        description="MSSQL 데이터베이스명"
+    )
+    MSSQL_USER: str = Field(
+        default="sa",
+        description="MSSQL 사용자명"
+    )
+    MSSQL_PASSWORD: str = Field(
+        default="",
+        description="MSSQL 비밀번호"
+    )
+    MSSQL_TIMEOUT: int = Field(
+        default=5,
+        description="MSSQL 연결 타임아웃 (초)"
+    )
+
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], info) -> str:
