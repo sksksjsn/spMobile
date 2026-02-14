@@ -1,12 +1,14 @@
 """
 데이터베이스 설정 및 세션 관리
-SQLAlchemy 2.0 + asyncpg 기반 비동기 데이터베이스 연결
+SQLAlchemy 2.0 기반 비동기 데이터베이스 연결
+PostgreSQL (asyncpg) 및 MSSQL (aioodbc) 지원
 """
 
-from typing import AsyncGenerator
+from typing import Any, AsyncGenerator, Dict
 
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, event
 from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
@@ -19,13 +21,48 @@ from server.app.core.config import settings
 # Database Engine
 # ====================
 
-engine = create_async_engine(
-    str(settings.DATABASE_URL),
-    echo=settings.DB_ECHO,
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=settings.DB_MAX_OVERFLOW,
-    pool_pre_ping=True,  # 연결 유효성 자동 검사
-)
+
+def create_database_engine() -> AsyncEngine:
+    """
+    DATABASE_TYPE에 따라 적절한 데이터베이스 엔진을 생성합니다.
+
+    Returns:
+        AsyncEngine: SQLAlchemy 비동기 엔진
+    """
+    engine_args: Dict[str, Any] = {
+        "echo": settings.DB_ECHO,
+        "pool_pre_ping": True,  # 연결 유효성 자동 검사
+    }
+
+    # PostgreSQL 설정
+    if settings.DATABASE_TYPE == "postgresql":
+        engine_args.update(
+            {
+                "pool_size": settings.DB_POOL_SIZE,
+                "max_overflow": settings.DB_MAX_OVERFLOW,
+            }
+        )
+
+    # MSSQL 설정
+    elif settings.DATABASE_TYPE == "mssql":
+        # MSSQL은 connection pool 설정이 다름
+        engine_args.update(
+            {
+                "pool_size": settings.DB_POOL_SIZE,
+                "max_overflow": settings.DB_MAX_OVERFLOW,
+                # MSSQL 전용 설정
+                "connect_args": {
+                    "timeout": settings.MSSQL_TIMEOUT,
+                },
+            }
+        )
+
+    engine = create_async_engine(str(settings.DATABASE_URL), **engine_args)
+
+    return engine
+
+
+engine = create_database_engine()
 
 # ====================
 # Session Factory

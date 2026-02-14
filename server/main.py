@@ -78,7 +78,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     # 시작 시 실행
     logger.info("🚀 Starting application...")
     logger.info(f"📦 Environment: {settings.ENVIRONMENT}")
-    logger.info(f"🗄️  Database: {settings.POSTGRES_DB}")
+
+    # 데이터베이스 타입에 따라 다른 정보 표시
+    if settings.DATABASE_TYPE == "postgresql":
+        logger.info(f"🗄️  Database: PostgreSQL ({settings.POSTGRES_DB})")
+    elif settings.DATABASE_TYPE == "mssql":
+        logger.info(f"🗄️  Database: MSSQL ({settings.MSSQL_DATABASE})")
+    else:
+        logger.info(f"🗄️  Database: {settings.DATABASE_TYPE}")
 
     # TODO: 필요한 초기화 작업
     # - 데이터베이스 마이그레이션 확인

@@ -5,7 +5,11 @@ uvicorn[standard]==0.27.0
 # 비동기 PostgreSQL 드라이버
 asyncpg==0.29.0
 
-# MSSQL 드라이버 (시스템 ODBC 불필요)
+# 비동기 MSSQL 드라이버 (ODBC 기반)
+aioodbc==0.5.0
+pyodbc==5.0.1
+
+# MSSQL 드라이버 (동기, 호환성 유지용)
 pymssql==2.3.12
 
 # SQLAlchemy 2.0 (ORM)
