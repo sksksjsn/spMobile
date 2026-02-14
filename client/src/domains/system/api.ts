@@ -25,3 +25,15 @@ export const checkMSSQLConnection = async (config: MSSQLConnectionConfig): Promi
   const response = await apiClient.post<DBCheckResponse>('/v1/system/mssql-check', config);
   return response.data;
 };
+
+/**
+ * MSSQL 데이터베이스 연결 테스트 (.env 기반)
+ *
+ * .env 파일에 설정된 MSSQL 설정으로 연결 테스트를 수행합니다.
+ *
+ * @returns MSSQL DB 연결 테스트 결과
+ */
+export const checkMSSQLConnectionFromEnv = async (): Promise<DBCheckResponse> => {
+  const response = await apiClient.get<DBCheckResponse>('/v1/system/mssql-check-env');
+  return response.data;
+};
