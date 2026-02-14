@@ -42,10 +42,17 @@ target_metadata = Base.metadata
 
 # Override sqlalchemy.url from environment variable
 database_url = os.getenv("DATABASE_URL")
+database_type = os.getenv("DATABASE_TYPE", "postgresql")
+
 if database_url:
-    # Ensure we're using asyncpg driver
-    if database_url.startswith("postgresql://"):
+    # PostgreSQL: Ensure we're using asyncpg driver
+    if database_type == "postgresql" and database_url.startswith("postgresql://"):
         database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+    # MSSQL: Ensure we're using aioodbc driver
+    elif database_type == "mssql" and database_url.startswith("mssql://"):
+        database_url = database_url.replace("mssql://", "mssql+aioodbc://", 1)
+
     config.set_main_option("sqlalchemy.url", database_url)
 
 

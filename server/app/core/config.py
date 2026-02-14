@@ -4,7 +4,8 @@ Pydantic Settings를 사용한 타입 안전한 환경 변수 관리
 """
 
 from functools import lru_cache
-from typing import Optional
+from typing import Literal, Optional
+from urllib.parse import quote_plus
 
 from pydantic import Field, PostgresDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -60,6 +61,12 @@ class Settings(BaseSettings):
     # ====================
     # Database Settings
     # ====================
+    DATABASE_TYPE: Literal["postgresql", "mssql"] = Field(
+        default="postgresql",
+        description="사용할 데이터베이스 타입 (postgresql 또는 mssql)"
+    )
+
+    # PostgreSQL Settings
     POSTGRES_HOST: str = Field(
         default="localhost",
         description="PostgreSQL 호스트"
@@ -81,7 +88,7 @@ class Settings(BaseSettings):
         description="PostgreSQL 데이터베이스명"
     )
 
-    DATABASE_URL: Optional[PostgresDsn] = Field(
+    DATABASE_URL: Optional[str] = Field(
         default=None,
         description="데이터베이스 URL (직접 제공 시)"
     )
@@ -102,17 +109,17 @@ class Settings(BaseSettings):
     # ====================
     # MSSQL Settings
     # ====================
-    MSSQL_ENABLED: bool = Field(
-        default=False,
-        description="MSSQL 연결 테스트 활성화 여부"
-    )
     MSSQL_DRIVER: str = Field(
         default="ODBC Driver 17 for SQL Server",
         description="MSSQL ODBC 드라이버 이름"
     )
-    MSSQL_SERVER: str = Field(
+    MSSQL_HOST: str = Field(
         default="localhost",
         description="MSSQL 서버 주소"
+    )
+    MSSQL_PORT: int = Field(
+        default=1433,
+        description="MSSQL 포트"
     )
     MSSQL_DATABASE: str = Field(
         default="master",
@@ -127,8 +134,16 @@ class Settings(BaseSettings):
         description="MSSQL 비밀번호"
     )
     MSSQL_TIMEOUT: int = Field(
-        default=5,
+        default=30,
         description="MSSQL 연결 타임아웃 (초)"
+    )
+    MSSQL_ENCRYPT: bool = Field(
+        default=False,
+        description="MSSQL 연결 암호화 사용 여부"
+    )
+    MSSQL_TRUST_SERVER_CERTIFICATE: bool = Field(
+        default=True,
+        description="MSSQL 서버 인증서 신뢰 여부"
     )
 
     @field_validator("DATABASE_URL", mode="before")
@@ -144,14 +159,41 @@ class Settings(BaseSettings):
             return v
 
         values = info.data
-        return PostgresDsn.build(
-            scheme="postgresql+asyncpg",
-            username=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_HOST"),
-            port=values.get("POSTGRES_PORT"),
-            path=f"{values.get('POSTGRES_DB') or ''}",
-        ).unicode_string()
+        db_type = values.get("DATABASE_TYPE", "postgresql")
+
+        if db_type == "postgresql":
+            return PostgresDsn.build(
+                scheme="postgresql+asyncpg",
+                username=values.get("POSTGRES_USER"),
+                password=values.get("POSTGRES_PASSWORD"),
+                host=values.get("POSTGRES_HOST"),
+                port=values.get("POSTGRES_PORT"),
+                path=f"{values.get('POSTGRES_DB') or ''}",
+            ).unicode_string()
+
+        elif db_type == "mssql":
+            # MSSQL 연결 문자열 생성 (aioodbc 사용)
+            driver = quote_plus(values.get("MSSQL_DRIVER", "ODBC Driver 17 for SQL Server"))
+            user = values.get("MSSQL_USER", "sa")
+            password = quote_plus(values.get("MSSQL_PASSWORD", ""))
+            host = values.get("MSSQL_HOST", "localhost")
+            port = values.get("MSSQL_PORT", 1433)
+            database = values.get("MSSQL_DATABASE", "master")
+            timeout = values.get("MSSQL_TIMEOUT", 30)
+            encrypt = "yes" if values.get("MSSQL_ENCRYPT", False) else "no"
+            trust_cert = "yes" if values.get("MSSQL_TRUST_SERVER_CERTIFICATE", True) else "no"
+
+            # mssql+aioodbc://user:password@host:port/database?driver=...&timeout=...
+            return (
+                f"mssql+aioodbc://{user}:{password}@{host}:{port}/{database}"
+                f"?driver={driver}"
+                f"&timeout={timeout}"
+                f"&Encrypt={encrypt}"
+                f"&TrustServerCertificate={trust_cert}"
+            )
+
+        else:
+            raise ValueError(f"Unsupported DATABASE_TYPE: {db_type}")
 
     # ====================
     # Security Settings
