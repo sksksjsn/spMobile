@@ -10,8 +10,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.app.core.config import settings
 from server.app.core.database import get_db
-from server.app.domain.system.repositories import ConnectionTestRepository
-from server.app.domain.system.schemas import DBCheckResponse
+from server.app.domain.system.repositories import (
+    ConnectionTestRepository,
+    TestTableRepository,
+)
+from server.app.domain.system.schemas import (
+    DBCheckResponse,
+    OrmTestResponse,
+    TestTableItem,
+)
 
 router = APIRouter(prefix="/system", tags=["system"])
 
@@ -112,4 +119,38 @@ async def check_mssql_mcp_connection() -> DBCheckResponse:
         raise HTTPException(
             status_code=500,
             detail=f"DB 연결 실패 (MCP): {str(e)}",
+        )
+
+
+@router.post(
+    "/orm-test",
+    response_model=OrmTestResponse,
+    summary="ORM 테스트 (INSERT + SELECT)",
+    description="SQLAlchemy ORM으로 TestTable에 레코드를 추가하고 전체 데이터를 조회합니다.",
+)
+async def orm_test(
+    db: AsyncSession = Depends(get_db),
+) -> OrmTestResponse:
+    """
+    ORM 테스트 - TestTable INSERT 후 SELECT
+
+    1. TestTable에 새 레코드 INSERT (name = 'name' + id)
+    2. 전체 레코드 SELECT 후 반환
+    """
+    try:
+        repository = TestTableRepository(db)
+        inserted = await repository.insert()
+        all_records = await repository.provide()
+
+        return OrmTestResponse(
+            success=True,
+            message=f"레코드 저장 성공! (id={inserted.id}, name={inserted.name})",
+            inserted=TestTableItem.model_validate(inserted),
+            all_records=[TestTableItem.model_validate(r) for r in all_records],
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"ORM 테스트 실패: {str(e)}",
         )

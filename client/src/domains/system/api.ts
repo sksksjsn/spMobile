@@ -3,7 +3,7 @@
  */
 
 import { apiClient } from '@/core/api/client';
-import type { DBCheckResponse } from './types';
+import type { DBCheckResponse, OrmTestResponse } from './types';
 
 /**
  * 데이터베이스 연결 테스트
@@ -24,6 +24,16 @@ export const checkDatabaseConnection = async (): Promise<DBCheckResponse> => {
  */
 export const checkMSSQLMCPConnection = async (): Promise<DBCheckResponse> => {
   const response = await apiClient.get<DBCheckResponse>('/v1/system/mssql-mcp-check');
+  return response.data;
+};
+
+/**
+ * ORM 테스트 - TestTable INSERT 후 SELECT
+ *
+ * SQLAlchemy ORM으로 TestTable에 레코드를 추가하고 전체 데이터를 조회합니다.
+ */
+export const testOrmInsertAndSelect = async (): Promise<OrmTestResponse> => {
+  const response = await apiClient.post<OrmTestResponse>('/v1/system/orm-test');
   return response.data;
 };
 
