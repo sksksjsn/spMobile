@@ -11,9 +11,9 @@
 ### 컨테이너 실행
 윈도우 PowerShell에서 다음 명령어를 한 줄로 실행합니다.
 ```powershell
-docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=SqlPassword123!" \
-   -p 1433:1433 --name mssql-server \
-   -v mssql_data:/var/opt/mssql \
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=SqlPassword123!" `
+   -p 1433:1433 --name mssql-server `
+   -v mssql_data:/var/opt/mssql `
    -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
