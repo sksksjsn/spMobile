@@ -11,54 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from server.app.core.config import settings
 from server.app.core.database import get_db
 from server.app.domain.system.repositories import ConnectionTestRepository
-from server.app.domain.system.schemas import DBCheckResponse, MSSQLConnectionRequest
+from server.app.domain.system.schemas import DBCheckResponse
 
 router = APIRouter(prefix="/system", tags=["system"])
-
-
-def test_mssql_connection(config: MSSQLConnectionRequest) -> bool:
-    """
-    MSSQL 데이터베이스 연결 테스트
-
-    Args:
-        config: MSSQL 연결 정보
-
-    Returns:
-        bool: 연결 성공 시 True
-
-    Raises:
-        HTTPException: 연결 실패 시 500 에러
-    """
-    try:
-        import pymssql
-
-        # 연결 시도 (pymssql은 ODBC 드라이버 없이 직접 연결)
-        conn = pymssql.connect(
-            server=config.server,
-            port=config.port,
-            user=config.username,
-            password=config.password,
-            database=config.database,
-            timeout=config.timeout,
-            login_timeout=config.timeout,
-        )
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1")
-        cursor.fetchone()
-        cursor.close()
-        conn.close()
-
-        return True
-    except ImportError:
-        raise HTTPException(
-            status_code=500,
-            detail="pymssql 패키지가 설치되지 않았습니다. pip install pymssql을 실행하세요.",
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"MSSQL 연결 실패: {str(e)}",
-        )
 
 
 @router.get(
@@ -108,95 +63,6 @@ async def check_database_connection(
         raise HTTPException(
             status_code=500,
             detail=f"데이터베이스 연결 테스트 실패: {str(e)}",
-        )
-
-
-@router.post(
-    "/mssql-check",
-    response_model=DBCheckResponse,
-    summary="MSSQL 데이터베이스 연결 테스트",
-    description="사용자가 입력한 MSSQL 연결 정보로 연결 테스트를 수행합니다.",
-)
-async def check_mssql_connection(config: MSSQLConnectionRequest) -> DBCheckResponse:
-    """
-    MSSQL 데이터베이스 연결 테스트
-
-    요청 바디로 받은 MSSQL 연결 정보로 실제 연결을 시도합니다.
-    민감한 정보는 저장되지 않으며 연결 테스트에만 사용됩니다.
-
-    Args:
-        config: MSSQL 연결 정보 (서버, 데이터베이스, 사용자명, 비밀번호 등)
-
-    Returns:
-        DBCheckResponse: 연결 상태 및 메시지
-
-    Raises:
-        HTTPException: 연결 실패 시 500 에러
-    """
-    try:
-        test_mssql_connection(config)
-
-        return DBCheckResponse(
-            success=True,
-            message=f"MSSQL 데이터베이스 연결 성공! (Server: {config.server}:{config.port}, Database: {config.database})",
-            timestamp=datetime.utcnow(),
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"MSSQL 데이터베이스 연결 테스트 실패: {str(e)}",
-        )
-
-
-@router.get(
-    "/mssql-check-env",
-    response_model=DBCheckResponse,
-    summary="MSSQL 데이터베이스 연결 테스트 (.env 기반)",
-    description=".env 파일의 MSSQL 설정을 사용하여 연결 테스트를 수행합니다.",
-)
-async def check_mssql_connection_from_env() -> DBCheckResponse:
-    """
-    .env 파일 기반 MSSQL 데이터베이스 연결 테스트
-
-    .env 파일에 설정된 MSSQL 연결 정보를 사용하여 실제 연결을 시도합니다.
-    MSSQL_HOST, MSSQL_PORT, MSSQL_DATABASE, MSSQL_USER, MSSQL_PASSWORD 등의
-    환경 변수를 사용합니다.
-
-    Returns:
-        DBCheckResponse: 연결 상태 및 메시지
-
-    Raises:
-        HTTPException: 연결 실패 시 500 에러
-    """
-    try:
-        # .env 파일에서 MSSQL 설정 가져오기
-        config = MSSQLConnectionRequest(
-            server=settings.MSSQL_HOST,
-            port=settings.MSSQL_PORT,
-            database=settings.MSSQL_DATABASE,
-            username=settings.MSSQL_USER,
-            password=settings.MSSQL_PASSWORD,
-            timeout=settings.MSSQL_TIMEOUT,
-        )
-
-        # 연결 테스트 수행
-        test_mssql_connection(config)
-
-        return DBCheckResponse(
-            success=True,
-            message=f"MSSQL 데이터베이스 연결 성공! (Server: {config.server}:{config.port}, Database: {config.database})",
-            timestamp=datetime.utcnow(),
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"MSSQL 데이터베이스 연결 테스트 실패: {str(e)}",
         )
 
 

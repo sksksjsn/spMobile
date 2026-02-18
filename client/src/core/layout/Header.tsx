@@ -17,14 +17,12 @@ interface HeaderProps {
   connectionStatus: 'loading' | 'ok' | 'error';
   onOpenDocument: (key: 'overview' | 'quickStart' | 'devGuide') => void;
   onDBCheck: () => void;
-  onMSSQLModalOpen: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   connectionStatus,
   onOpenDocument,
   onDBCheck,
-  onMSSQLModalOpen,
 }) => {
   const [isTestingMSSQLDB, setIsTestingMSSQLDB] = useState(false);
 
@@ -98,14 +96,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Database size={14} />
             DB 연결 테스트
-          </button>
-          <button
-            onClick={onMSSQLModalOpen}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold hover:bg-purple-100 transition-all active:scale-95 border border-purple-200"
-            title="MSSQL DB 연결 테스트"
-          >
-            <Database size={14} />
-            MSSQL 연결 테스트
           </button>
           <button
             onClick={handleMSSQLDBTest}
