@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react';
 import { Zap, FileCode, BookOpen, Database } from 'lucide-react';
-import { checkMSSQLConnectionFromEnv } from '@/domains/system/api';
+import { checkMSSQLMCPConnection } from '@/domains/system/api';
 import { toast } from '@/core/utils/toast';
 import type { ApiError } from '@/core/api/types';
 
@@ -31,11 +31,11 @@ export const Header: React.FC<HeaderProps> = ({
   const handleMSSQLDBTest = async () => {
     setIsTestingMSSQLDB(true);
     try {
-      const response = await checkMSSQLConnectionFromEnv();
+      const response = await checkMSSQLMCPConnection();
       toast.success(response.message);
     } catch (error) {
       const apiError = error as ApiError;
-      toast.error(apiError.message || 'MSSQL 연결 테스트 실패');
+      toast.error(apiError.message || 'DB 연결 테스트 실패 (MCP)');
     } finally {
       setIsTestingMSSQLDB(false);
     }
@@ -80,16 +80,14 @@ export const Header: React.FC<HeaderProps> = ({
 
         <div className="flex items-center gap-4">
           <div
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
-              connectionStatus === 'ok'
-                ? 'bg-emerald-50 text-emerald-600'
-                : 'bg-rose-50 text-rose-600'
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${connectionStatus === 'ok'
+              ? 'bg-emerald-50 text-emerald-600'
+              : 'bg-rose-50 text-rose-600'
+              }`}
           >
             <div
-              className={`w-1.5 h-1.5 rounded-full animate-pulse ${
-                connectionStatus === 'ok' ? 'bg-emerald-500' : 'bg-rose-500'
-              }`}
+              className={`w-1.5 h-1.5 rounded-full animate-pulse ${connectionStatus === 'ok' ? 'bg-emerald-500' : 'bg-rose-500'
+                }`}
             />
             Node: {connectionStatus === 'ok' ? 'Stable' : 'Offline'}
           </div>
@@ -113,10 +111,10 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={handleMSSQLDBTest}
             disabled={isTestingMSSQLDB}
             className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-xl text-xs font-bold hover:bg-green-100 transition-all active:scale-95 border border-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="MSSQL DB 연결 테스트 (.env)"
+            title="MCP 서버를 통한 DB 연결 테스트 (@@VERSION 조회)"
           >
             <Database size={14} />
-            {isTestingMSSQLDB ? '테스트 중...' : 'MSSQL테스트2'}
+            {isTestingMSSQLDB ? '테스트 중...' : 'DB연결테스트(MCP)'}
           </button>
           <button className="bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all active:scale-95">
             시작하기
