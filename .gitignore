@@ -70,7 +70,9 @@ logs/
 # alembic/versions/*.py  # 마이그레이션 파일은 커밋해야 함
 
 # MCP
-.mcp.json
+# .mcp.json은 URL만 포함 (자격증명 없음) → 커밋 대상
+# 자격증명은 mcp-servers/mssql/.env 에서 관리 (gitignore 적용)
+mcp-servers/**/.env
 
 # OS
 .DS_Store
