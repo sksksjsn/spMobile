@@ -3,11 +3,9 @@ import axios from 'axios';
 import { Activity, ArrowRight, Layers, Layout, Code } from 'lucide-react';
 import { LoadingOverlay } from './core/loading';
 import { DocumentViewer } from './components/DocumentViewer';
-import { MSSQLConnectionModal } from './components/MSSQLConnectionModal';
 import { Header } from './core/layout/Header';
-import { checkDatabaseConnection, checkMSSQLConnection } from './domains/system/api';
+import { checkDatabaseConnection } from './domains/system/api';
 import { toast } from './core/utils/toast';
-import type { MSSQLConnectionConfig } from './domains/system/types';
 
 interface DocumentConfig {
   title: string;
@@ -25,8 +23,6 @@ function App() {
     title: '',
     filePath: '',
   });
-  const [isMSSQLModalOpen, setIsMSSQLModalOpen] = useState(false);
-
   const documents: Record<string, DocumentConfig> = {
     overview: { title: '프로젝트 개요', filePath: '/README.md' },
     quickStart: { title: '빠른 시작', filePath: '/DOC/BEGINNER_QUICK_START.md' },
@@ -74,18 +70,6 @@ function App() {
     }
   };
 
-  // MSSQL 연결 테스트 핸들러
-  const handleMSSQLCheck = async (config: MSSQLConnectionConfig) => {
-    setIsMSSQLModalOpen(false); // 모달 닫기
-    try {
-      const result = await checkMSSQLConnection(config);
-      toast.success(result.message);
-    } catch (error: any) {
-      const errorMessage = error?.message || 'MSSQL 연결 실패';
-      toast.error(errorMessage);
-    }
-  };
-
   return (
     <>
       {/* 전역 로딩 오버레이 */}
@@ -99,20 +83,12 @@ function App() {
         filePath={documentViewer.filePath}
       />
 
-      {/* MSSQL 연결 모달 */}
-      <MSSQLConnectionModal
-        isOpen={isMSSQLModalOpen}
-        onClose={() => setIsMSSQLModalOpen(false)}
-        onSubmit={handleMSSQLCheck}
-      />
-
       <div className="min-h-screen bg-mesh selection:bg-indigo-100">
         {/* 1. 네비게이션 - Header 컴포넌트 */}
         <Header
           connectionStatus={connectionStatus}
           onOpenDocument={openDocument}
           onDBCheck={handleDBCheck}
-          onMSSQLModalOpen={() => setIsMSSQLModalOpen(true)}
         />
 
         {/* 2. Hero Section - 와이드 & 클린 */}
