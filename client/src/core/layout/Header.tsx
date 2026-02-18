@@ -7,8 +7,11 @@
  * <Header />
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Zap, FileCode, BookOpen, Database } from 'lucide-react';
+import { checkMSSQLMCPConnection } from '@/domains/system/api';
+import { toast } from '@/core/utils/toast';
+import type { ApiError } from '@/core/api/types';
 
 interface HeaderProps {
   connectionStatus: 'loading' | 'ok' | 'error';
@@ -21,6 +24,21 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenDocument,
   onDBCheck,
 }) => {
+  const [isTestingMSSQLDB, setIsTestingMSSQLDB] = useState(false);
+
+  const handleMSSQLDBTest = async () => {
+    setIsTestingMSSQLDB(true);
+    try {
+      const response = await checkMSSQLMCPConnection();
+      toast.success(response.message);
+    } catch (error) {
+      const apiError = error as ApiError;
+      toast.error(apiError.message || 'DB 연결 테스트 실패 (MCP)');
+    } finally {
+      setIsTestingMSSQLDB(false);
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-50 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 bg-white/70 backdrop-blur-xl border border-white/40 rounded-2xl shadow-sm">
@@ -78,6 +96,15 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Database size={14} />
             DB 연결 테스트
+          </button>
+          <button
+            onClick={handleMSSQLDBTest}
+            disabled={isTestingMSSQLDB}
+            className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-xl text-xs font-bold hover:bg-green-100 transition-all active:scale-95 border border-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="MCP 서버를 통한 DB 연결 테스트 (@@VERSION 조회)"
+          >
+            <Database size={14} />
+            {isTestingMSSQLDB ? '테스트 중...' : 'DB연결테스트(MCP)'}
           </button>
           <button className="bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all active:scale-95">
             시작하기

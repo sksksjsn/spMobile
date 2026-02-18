@@ -8,6 +8,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from server.app.core.config import settings
 from server.app.core.database import get_db
 from server.app.domain.system.repositories import ConnectionTestRepository
 from server.app.domain.system.schemas import DBCheckResponse
@@ -65,3 +66,50 @@ async def check_database_connection(
         )
 
 
+@router.get(
+    "/mssql-mcp-check",
+    response_model=DBCheckResponse,
+    summary="DB 연결 테스트 (MCP)",
+    description="MCP 서버 설정(.env)을 사용하여 MSSQL에 연결하고 @@VERSION 정보를 반환합니다.",
+)
+async def check_mssql_mcp_connection() -> DBCheckResponse:
+    """
+    DB 연결 테스트 (MCP)
+
+    .env 파일의 MSSQL 설정으로 연결 후 @@VERSION 정보를 조회합니다.
+    """
+    try:
+        import pymssql
+
+        conn = pymssql.connect(
+            server=settings.MSSQL_HOST,
+            port=settings.MSSQL_PORT,
+            user=settings.MSSQL_USER,
+            password=settings.MSSQL_PASSWORD,
+            database=settings.MSSQL_DATABASE,
+            timeout=settings.MSSQL_TIMEOUT,
+            login_timeout=settings.MSSQL_TIMEOUT,
+        )
+        cursor = conn.cursor()
+        cursor.execute("SELECT @@VERSION")
+        row = cursor.fetchone()
+        version_info = row[0] if row else "버전 정보를 가져올 수 없습니다."
+        cursor.close()
+        conn.close()
+
+        return DBCheckResponse(
+            success=True,
+            message=f"✅ DB 연결 성공!\n\n{version_info}",
+            timestamp=datetime.utcnow(),
+        )
+
+    except ImportError:
+        raise HTTPException(
+            status_code=500,
+            detail="pymssql 패키지가 설치되지 않았습니다. pip install pymssql을 실행하세요.",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"DB 연결 실패 (MCP): {str(e)}",
+        )
