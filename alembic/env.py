@@ -34,6 +34,7 @@ from server.app.core.database import Base  # noqa: E402
 # from server.app.domain.auth.models import Session
 # from server.app.domain.menu.models import Menu, MenuRole
 # from server.app.domain.code.models import CodeMaster, CodeDetail
+from server.app.domain.system.models import ConnectionTest, TestTable  # noqa: E402, F401
 
 # Add more imports as you create new domains
 

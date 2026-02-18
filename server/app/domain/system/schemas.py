@@ -25,3 +25,21 @@ class DBCheckResponse(BaseModel):
     timestamp: datetime = Field(..., description="응답 시각")
 
 
+class TestTableItem(BaseModel):
+    """TestTable 단일 레코드"""
+
+    id: int = Field(..., description="레코드 ID")
+    name: str = Field(..., description="이름")
+
+    model_config = {"from_attributes": True}
+
+
+class OrmTestResponse(BaseModel):
+    """ORM 테스트 응답"""
+
+    success: bool = Field(..., description="성공 여부")
+    message: str = Field(..., description="결과 메시지")
+    inserted: TestTableItem = Field(..., description="저장된 레코드")
+    all_records: list[TestTableItem] = Field(..., description="전체 레코드 목록")
+
+
