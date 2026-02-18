@@ -1,0 +1,23 @@
+services:
+  mssql-mcp:
+    build: .
+    image: mssql-mcp-server:latest
+    container_name: mssql-mcp-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # ── MSSQL 연결 정보 (.env 파일로 관리) ──────────────────────────
+      MSSQL_SERVER: ${MSSQL_SERVER}
+      MSSQL_PORT: ${MSSQL_PORT:-1433}
+      MSSQL_USER: ${MSSQL_USER}
+      MSSQL_PASSWORD: ${MSSQL_PASSWORD}
+      MSSQL_DATABASE: ${MSSQL_DATABASE}
+      MSSQL_ENCRYPT: ${MSSQL_ENCRYPT:-false}
+      MSSQL_TRUST_SERVER_CERTIFICATE: ${MSSQL_TRUST_SERVER_CERTIFICATE:-true}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
