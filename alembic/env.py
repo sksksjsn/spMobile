@@ -6,7 +6,11 @@ It loads database configuration from .env file and supports both online and offl
 
 import asyncio
 import os
+import sys
 from logging.config import fileConfig
+
+# Add project root to sys.path to allow importing from 'server'
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 
 from alembic import context
 from dotenv import load_dotenv
