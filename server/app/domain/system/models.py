@@ -5,7 +5,7 @@ System 도메인 ORM 모델
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, String, Text
+from sqlalchemy import DateTime, String, Text, Unicode
 from sqlalchemy.orm import Mapped, mapped_column
 
 from server.app.core.database import Base
@@ -38,7 +38,7 @@ class TestTable(Base):
     __tablename__ = "test_table"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(Unicode(200), nullable=False)
 
     def __repr__(self) -> str:
         return f"<TestTable(id={self.id}, name='{self.name}')>"
