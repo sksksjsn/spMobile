@@ -47,18 +47,19 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-seah-gray-50 px-5 py-8">
-      {/* 상단 장식 그래디언트 */}
+      {/* 상단 장식 그래디언트 — SeAH Gray 기반 + Orange 포인트 */}
       <div className="pointer-events-none fixed top-0 right-0 left-0 h-[280px] overflow-hidden">
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(135deg, #0B5FBB 0%, #3D7FE8 40%, #669DFD 70%, #ADCFFF 100%)',
+              'linear-gradient(135deg, #37393c 0%, #53565A 40%, #787b7f 70%, #c1c3c5 100%)',
           }}
         />
+        {/* Orange 포인트 글로우 */}
         <div
-          className="absolute -right-16 -bottom-16 h-64 w-64 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, #ffffff 0%, transparent 70%)' }}
+          className="absolute -right-16 -bottom-16 h-64 w-64 rounded-full opacity-30"
+          style={{ background: 'radial-gradient(circle, #E94E1B 0%, transparent 70%)' }}
         />
         <div
           className="absolute -top-8 -left-8 h-48 w-48 rounded-full opacity-15"
@@ -81,22 +82,19 @@ export default function LoginPage() {
 
       {/* 로고 + 타이틀 영역 */}
       <div className="relative z-10 mb-8 flex animate-fade-in flex-col items-center">
-        {/* 로고 Placeholder */}
+        {/* SeAH 꺾쇠 로고 — SeAH Orange */}
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-card">
           <svg viewBox="0 0 40 40" fill="none" className="h-10 w-10">
-            <rect width="40" height="40" rx="8" fill="#0B5FBB" />
-            <text
-              x="50%"
-              y="55%"
-              dominantBaseline="middle"
-              textAnchor="middle"
-              fontFamily="Pretendard, sans-serif"
-              fontWeight="700"
-              fontSize="20"
-              fill="white"
-            >
-              S
-            </text>
+            <rect width="40" height="40" rx="8" fill="#E94E1B" />
+            {/* 꺾쇠(>) 모양 — SeAH CI */}
+            <path
+              d="M14 10L26 20L14 30"
+              stroke="white"
+              strokeWidth="4.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
           </svg>
         </div>
         <h1 className="text-xl font-bold tracking-tight text-white">SeAH ePro</h1>
@@ -120,14 +118,14 @@ export default function LoginPage() {
               <div
                 className={`flex items-center gap-2.5 rounded-xl border-[1.5px] px-3.5 py-3 transition-all duration-200 ${
                   idFocused
-                    ? 'border-seah-blue-600 shadow-input-focus'
+                    ? 'border-seah-orange-500 shadow-input-focus'
                     : 'border-seah-gray-200 hover:border-seah-gray-300'
                 }`}
               >
                 <User
                   size={18}
                   className={`shrink-0 transition-colors duration-200 ${
-                    idFocused ? 'text-seah-blue-600' : 'text-seah-gray-400'
+                    idFocused ? 'text-seah-orange-500' : 'text-seah-gray-400'
                   }`}
                 />
                 <input
@@ -156,14 +154,14 @@ export default function LoginPage() {
               <div
                 className={`flex items-center gap-2.5 rounded-xl border-[1.5px] px-3.5 py-3 transition-all duration-200 ${
                   pwFocused
-                    ? 'border-seah-blue-600 shadow-input-focus'
+                    ? 'border-seah-orange-500 shadow-input-focus'
                     : 'border-seah-gray-200 hover:border-seah-gray-300'
                 }`}
               >
                 <Lock
                   size={18}
                   className={`shrink-0 transition-colors duration-200 ${
-                    pwFocused ? 'text-seah-blue-600' : 'text-seah-gray-400'
+                    pwFocused ? 'text-seah-orange-500' : 'text-seah-gray-400'
                   }`}
                 />
                 <input
@@ -198,7 +196,7 @@ export default function LoginPage() {
                 onClick={() => setRememberMe(!rememberMe)}
                 className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
                   rememberMe
-                    ? 'border-seah-blue-600 bg-seah-blue-600'
+                    ? 'border-seah-orange-500 bg-seah-orange-500'
                     : 'border-seah-gray-300 bg-white hover:border-seah-gray-400'
                 }`}
               >
@@ -222,11 +220,11 @@ export default function LoginPage() {
               </span>
             </div>
 
-            {/* 로그인 버튼 */}
+            {/* 로그인 버튼 — SeAH Orange */}
             <button
               type="submit"
               disabled={isLoading || !loginId || !password}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-seah-blue-700 py-3.5 text-sm font-semibold text-white shadow-button transition-all duration-200 hover:bg-seah-blue-600 hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-seah-blue-400 focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-seah-orange-500 py-3.5 text-sm font-semibold text-white shadow-button transition-all duration-200 hover:bg-seah-orange-600 hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-seah-orange-300 focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             >
               {isLoading ? (
                 <>
