@@ -40,7 +40,7 @@ from server.app.core.database import Base  # noqa: E402
 # from server.app.domain.code.models import CodeMaster, CodeDetail
 from server.app.domain.system.models import ConnectionTest, TestTable  # noqa: E402, F401
 from server.app.domain.auth.models import (  # noqa: E402, F401
-    TbDept,
+    CmDeptMaster,
     TbRole,
     St00400,
     TbUserRole,

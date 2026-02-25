@@ -4,7 +4,6 @@
 """
 
 from .cm_dept_master import CmDeptMaster
-from .dept import TbDept
 from .role import TbRole
 from .user import St00400
 from .user_role import TbUserRole
@@ -13,7 +12,6 @@ from .token_blacklist import TbTokenBlacklist
 
 __all__ = [
     "CmDeptMaster",
-    "TbDept",
     "TbRole",
     "St00400",
     "TbUserRole",
