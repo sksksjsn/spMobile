@@ -54,11 +54,19 @@ class ApiClient {
           LoadingManager.show();
         }
 
-        // TODO: 인증 토큰 추가
-        // const token = localStorage.getItem('auth_token');
-        // if (token) {
-        //   config.headers.Authorization = `Bearer ${token}`;
-        // }
+        // 인증 토큰 자동 첨부
+        const authStorage = localStorage.getItem('auth-storage');
+        if (authStorage) {
+          try {
+            const parsed = JSON.parse(authStorage);
+            const token = parsed?.state?.token;
+            if (token) {
+              config.headers.Authorization = `Bearer ${token}`;
+            }
+          } catch {
+            // 파싱 실패 무시
+          }
+        }
 
         return config;
       },

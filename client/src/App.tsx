@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { Activity, ArrowRight, Layers, Layout, Code } from 'lucide-react';
 import { LoadingOverlay } from './core/loading';
@@ -6,13 +7,25 @@ import { DocumentViewer } from './components/DocumentViewer';
 import { Header } from './core/layout/Header';
 import { checkDatabaseConnection } from './domains/system/api';
 import { toast } from './core/utils/toast';
+import { useAuthStore } from './core/store/useAuthStore';
+import { LoginPage } from './domains/auth';
 
 interface DocumentConfig {
   title: string;
   filePath: string;
 }
 
-function App() {
+/** 인증된 사용자만 접근 가능한 라우트 보호 래퍼 */
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuthStore();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
+/** 기존 랜딩/메인 페이지 */
+function MainPage() {
   const [connectionStatus, setConnectionStatus] = useState<'loading' | 'ok' | 'error'>('loading');
   const [documentViewer, setDocumentViewer] = useState<{
     isOpen: boolean;
@@ -23,6 +36,7 @@ function App() {
     title: '',
     filePath: '',
   });
+
   const documents: Record<string, DocumentConfig> = {
     overview: { title: '프로젝트 개요', filePath: '/README.md' },
     quickStart: { title: '빠른 시작', filePath: '/DOC/BEGINNER_QUICK_START.md' },
@@ -31,83 +45,67 @@ function App() {
 
   const openDocument = (key: keyof typeof documents) => {
     const doc = documents[key];
-    setDocumentViewer({
-      isOpen: true,
-      title: doc.title,
-      filePath: doc.filePath,
-    });
+    setDocumentViewer({ isOpen: true, title: doc.title, filePath: doc.filePath });
   };
 
   const closeDocument = () => {
-    setDocumentViewer({
-      isOpen: false,
-      title: '',
-      filePath: '',
-    });
+    setDocumentViewer({ isOpen: false, title: '', filePath: '' });
   };
 
   useEffect(() => {
-    // 백엔드 연결 확인
     const checkConnection = async () => {
       try {
-        await axios.get('http://localhost:8000/api/v1/health'); // 실제 API 경로에 맞춰 조정 필요
+        await axios.get('http://localhost:8000/api/v1/health');
         setConnectionStatus('ok');
-      } catch (err) {
+      } catch {
         setConnectionStatus('error');
       }
     };
     checkConnection();
   }, []);
 
-  // DB 연결 테스트 핸들러
   const handleDBCheck = async () => {
     try {
       const result = await checkDatabaseConnection();
       toast.success(result.message);
-    } catch (error: any) {
-      const errorMessage = error?.message || 'DB 연결 실패';
+    } catch (error: unknown) {
+      const errorMessage =
+        error && typeof error === 'object' && 'message' in error
+          ? String((error as { message: unknown }).message)
+          : 'DB 연결 실패';
       toast.error(errorMessage);
     }
   };
 
   return (
     <>
-      {/* 전역 로딩 오버레이 */}
-      <LoadingOverlay />
-
-      {/* 문서 뷰어 */}
       <DocumentViewer
         isOpen={documentViewer.isOpen}
         onClose={closeDocument}
         title={documentViewer.title}
         filePath={documentViewer.filePath}
       />
-
       <div className="min-h-screen bg-mesh selection:bg-indigo-100">
-        {/* 1. 네비게이션 - Header 컴포넌트 */}
         <Header
           connectionStatus={connectionStatus}
           onOpenDocument={openDocument}
           onDBCheck={handleDBCheck}
         />
-
-        {/* 2. Hero Section - 와이드 & 클린 */}
         <section className="max-w-7xl mx-auto px-6 pt-24 pb-32 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-sm font-bold mb-8">
             <Activity size={16} />
             <span>New: 바이브코딩 환경 2026</span>
           </div>
-
           <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-[1.1] mb-8">
             바이브코딩 웹 템플릿, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">누구나 쉽게 1분만에 시작</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
+              누구나 쉽게 1분만에 시작
+            </span>
           </h1>
-
           <p className="text-xl text-slate-500 max-w-3xl mx-auto leading-relaxed mb-12">
-            AI 바이브코딩 환경 웹 서비스 템플릿. 유지보수성 최우선 및 모듈화를 핵심 가치로 하는 바이브 코딩(Vibe Coding) 환경을 제공합니다.
+            AI 바이브코딩 환경 웹 서비스 템플릿. 유지보수성 최우선 및 모듈화를 핵심 가치로 하는 바이브
+            코딩(Vibe Coding) 환경을 제공합니다.
           </p>
-
-          {/* 기술 스택 배지 */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
             <div className="px-5 py-2.5 bg-slate-800 text-slate-100 font-bold rounded-xl border border-slate-700 hover:bg-slate-700 transition-all">
               FastAPI
@@ -122,7 +120,6 @@ function App() {
               Tailwind 4
             </div>
           </div>
-
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => openDocument('quickStart')}
@@ -133,8 +130,6 @@ function App() {
             </button>
           </div>
         </section>
-
-        {/* 3. Feature Cards - 글래스모피즘 */}
         <section className="max-w-7xl mx-auto px-6 pb-40">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group p-8 bg-white/40 backdrop-blur-md border border-white/60 rounded-[32px] hover:bg-white/80 transition-all hover:-translate-y-2">
@@ -143,38 +138,35 @@ function App() {
               </div>
               <h3 className="text-xl font-bold mb-3">도메인 플러그인 구조</h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                새로운 비즈니스 도메인을 독립적으로 추가 가능. 각 도메인은 자체 완결적이며 충돌을 최소화합니다.
+                새로운 비즈니스 도메인을 독립적으로 추가 가능. 각 도메인은 자체 완결적이며 충돌을
+                최소화합니다.
               </p>
             </div>
-
             <div className="group p-8 bg-white/40 backdrop-blur-md border border-white/60 rounded-[32px] hover:bg-white/80 transition-all hover:-translate-y-2">
               <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 mb-6 group-hover:scale-110 transition-transform">
                 <Layout size={24} />
               </div>
               <h3 className="text-xl font-bold mb-3">계층화된 아키텍처</h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                Router-Service-Provider-Calculator-Formatter 구조로 명확한 책임 분리와 테스트 용이성을 보장합니다.
+                Router-Service-Provider-Calculator-Formatter 구조로 명확한 책임 분리와 테스트 용이성을
+                보장합니다.
               </p>
             </div>
-
             <div className="group p-8 bg-white/40 backdrop-blur-md border border-white/60 rounded-[32px] hover:bg-white/80 transition-all hover:-translate-y-2">
               <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform">
                 <Code size={24} />
               </div>
               <h3 className="text-xl font-bold mb-3">타입 안전성 & 비동기 최적화</h3>
               <p className="text-slate-500 leading-relaxed text-sm">
-                Pydantic v2, SQLAlchemy 2.0, TypeScript로 런타임 에러 최소화. async/await로 높은 처리량 보장.
+                Pydantic v2, SQLAlchemy 2.0, TypeScript로 런타임 에러 최소화. async/await로 높은 처리량
+                보장.
               </p>
             </div>
           </div>
         </section>
-
-        {/* 4. Footer */}
         <footer className="border-t border-slate-200 py-12 bg-white/30 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-slate-400 text-sm">
-              © 2026 vibe-web-starter. All rights reserved.
-            </div>
+            <div className="text-slate-400 text-sm">© 2026 vibe-web-starter. All rights reserved.</div>
             <div className="flex gap-8 text-slate-400 text-sm font-medium">
               <a href="#" className="hover:text-indigo-600">Privacy Policy</a>
               <a href="#" className="hover:text-indigo-600">Terms of Service</a>
@@ -183,6 +175,25 @@ function App() {
           </div>
         </footer>
       </div>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <LoadingOverlay />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <MainPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </>
   );
 }

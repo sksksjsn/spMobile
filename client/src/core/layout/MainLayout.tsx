@@ -26,7 +26,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <div className="layout">
-      <Header />
+      <Header
+        connectionStatus="loading"
+        onOpenDocument={() => {}}
+        onDBCheck={() => {}}
+      />
 
       <div className="layout-container">
         <Sidebar
