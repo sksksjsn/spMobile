@@ -1,10 +1,120 @@
-* {
+@import "tailwindcss";
+
+/* ===== SeAH Brand Design Tokens ===== */
+@theme {
+  /* SeAH Blue Palette */
+  --color-seah-blue-50: #EBF3FF;
+  --color-seah-blue-100: #D6E7FF;
+  --color-seah-blue-200: #ADCFFF;
+  --color-seah-blue-300: #84B7FF;
+  --color-seah-blue-400: #669DFD;
+  --color-seah-blue-500: #3D7FE8;
+  --color-seah-blue-600: #1A63D0;
+  --color-seah-blue-700: #0B5FBB;
+  --color-seah-blue-800: #084A92;
+  --color-seah-blue-900: #053569;
+
+  /* SeAH Gray Palette */
+  --color-seah-gray-50: #F5F7FA;
+  --color-seah-gray-100: #E8ECF1;
+  --color-seah-gray-200: #D1D8E0;
+  --color-seah-gray-300: #A8B4C0;
+  --color-seah-gray-400: #7F8F9F;
+  --color-seah-gray-500: #5C6E7E;
+  --color-seah-gray-600: #4A5B6A;
+  --color-seah-gray-700: #3B4951;
+  --color-seah-gray-800: #2C3740;
+  --color-seah-gray-900: #1D252E;
+
+  /* SeAH Orange Palette */
+  --color-seah-orange-50: #FFF4F1;
+  --color-seah-orange-100: #FFE5DE;
+  --color-seah-orange-200: #FFC6B8;
+  --color-seah-orange-300: #FFA08A;
+  --color-seah-orange-400: #F47A5C;
+  --color-seah-orange-500: #E54E2B;
+  --color-seah-orange-600: #C73D1E;
+  --color-seah-orange-700: #A33018;
+  --color-seah-orange-800: #7F2512;
+  --color-seah-orange-900: #5B1A0D;
+
+  /* Typography */
+  --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+
+  /* Shadows */
+  --shadow-card: 0 2px 12px 0 rgba(59, 73, 81, 0.08);
+  --shadow-card-hover: 0 4px 24px 0 rgba(59, 73, 81, 0.12);
+  --shadow-input-focus: 0 0 0 3px rgba(11, 95, 187, 0.12);
+  --shadow-button: 0 2px 8px 0 rgba(11, 95, 187, 0.25);
+  --shadow-button-hover: 0 4px 16px 0 rgba(11, 95, 187, 0.35);
+
+  /* Animation */
+  --animate-fade-in: fade-in 0.4s ease-out;
+  --animate-slide-up: slide-up 0.5s ease-out;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ===== Global Reset & Base ===== */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  min-height: 100vh;
-  background-color: #ffffff;
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  background-color: var(--color-seah-gray-50);
+  color: var(--color-seah-gray-800);
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/* PWA iOS Safe Area */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Input autofill reset */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px white inset;
+  box-shadow: 0 0 0px 1000px white inset;
+  -webkit-text-fill-color: var(--color-seah-gray-800);
+  transition: background-color 5000s ease-in-out 0s;
 }
