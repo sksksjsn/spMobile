@@ -1,53 +1,46 @@
 @import "tailwindcss";
 
-/* ===== SeAH Brand Design Tokens ===== */
+/* ─────────────────────────────────────────────────────────
+   SeAH Brand Design Tokens (Tailwind CSS v4 @theme)
+   Main Color (SeAH Gray)  : #53565A — 신뢰·포용
+   Point Color (SeAH Orange): #E94E1B — 열정·유연
+   Fonts: Pretendard (KR/EN)
+───────────────────────────────────────────────────────── */
 @theme {
-  /* SeAH Blue Palette */
-  --color-seah-blue-50: #EBF3FF;
-  --color-seah-blue-100: #D6E7FF;
-  --color-seah-blue-200: #ADCFFF;
-  --color-seah-blue-300: #84B7FF;
-  --color-seah-blue-400: #669DFD;
-  --color-seah-blue-500: #3D7FE8;
-  --color-seah-blue-600: #1A63D0;
-  --color-seah-blue-700: #0B5FBB;
-  --color-seah-blue-800: #084A92;
-  --color-seah-blue-900: #053569;
+  /* SeAH Gray scale (based on #53565A) */
+  --color-seah-gray-50:  #f3f3f4;
+  --color-seah-gray-100: #e0e1e2;
+  --color-seah-gray-200: #c1c3c5;
+  --color-seah-gray-300: #9ea0a3;
+  --color-seah-gray-400: #787b7f;
+  --color-seah-gray-500: #53565A;
+  --color-seah-gray-600: #45484b;
+  --color-seah-gray-700: #37393c;
+  --color-seah-gray-800: #292b2d;
+  --color-seah-gray-900: #1a1b1d;
 
-  /* SeAH Gray Palette */
-  --color-seah-gray-50: #F5F7FA;
-  --color-seah-gray-100: #E8ECF1;
-  --color-seah-gray-200: #D1D8E0;
-  --color-seah-gray-300: #A8B4C0;
-  --color-seah-gray-400: #7F8F9F;
-  --color-seah-gray-500: #5C6E7E;
-  --color-seah-gray-600: #4A5B6A;
-  --color-seah-gray-700: #3B4951;
-  --color-seah-gray-800: #2C3740;
-  --color-seah-gray-900: #1D252E;
-
-  /* SeAH Orange Palette */
-  --color-seah-orange-50: #FFF4F1;
-  --color-seah-orange-100: #FFE5DE;
-  --color-seah-orange-200: #FFC6B8;
-  --color-seah-orange-300: #FFA08A;
-  --color-seah-orange-400: #F47A5C;
-  --color-seah-orange-500: #E54E2B;
-  --color-seah-orange-600: #C73D1E;
-  --color-seah-orange-700: #A33018;
-  --color-seah-orange-800: #7F2512;
-  --color-seah-orange-900: #5B1A0D;
+  /* SeAH Orange scale (based on #E94E1B) */
+  --color-seah-orange-50:  #fef3ef;
+  --color-seah-orange-100: #fddacf;
+  --color-seah-orange-200: #f5ad9a;
+  --color-seah-orange-300: #f08264;
+  --color-seah-orange-400: #ec6840;
+  --color-seah-orange-500: #E94E1B;
+  --color-seah-orange-600: #c74218;
+  --color-seah-orange-700: #a53614;
+  --color-seah-orange-800: #7e2a0f;
+  --color-seah-orange-900: #571d0a;
 
   /* Typography */
   --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
 
   /* Shadows */
-  --shadow-card: 0 2px 12px 0 rgba(59, 73, 81, 0.08);
-  --shadow-card-hover: 0 4px 24px 0 rgba(59, 73, 81, 0.12);
-  --shadow-input-focus: 0 0 0 3px rgba(11, 95, 187, 0.12);
-  --shadow-button: 0 2px 8px 0 rgba(11, 95, 187, 0.25);
-  --shadow-button-hover: 0 4px 16px 0 rgba(11, 95, 187, 0.35);
+  --shadow-card: 0 2px 12px 0 rgba(83, 86, 90, 0.08);
+  --shadow-card-hover: 0 4px 24px 0 rgba(83, 86, 90, 0.14);
+  --shadow-input-focus: 0 0 0 3px rgba(233, 78, 27, 0.12);
+  --shadow-button: 0 2px 8px 0 rgba(233, 78, 27, 0.25);
+  --shadow-button-hover: 0 4px 16px 0 rgba(233, 78, 27, 0.35);
 
   /* Animation */
   --animate-fade-in: fade-in 0.4s ease-out;
