@@ -42,7 +42,7 @@ from server.app.domain.system.models import ConnectionTest, TestTable  # noqa: E
 from server.app.domain.auth.models import (  # noqa: E402, F401
     TbDept,
     TbRole,
-    TbUser,
+    St00400,
     TbUserRole,
     TbLoginLog,
     TbTokenBlacklist,

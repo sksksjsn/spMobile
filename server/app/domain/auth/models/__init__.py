@@ -5,7 +5,7 @@
 
 from .dept import TbDept
 from .role import TbRole
-from .user import TbUser
+from .user import St00400
 from .user_role import TbUserRole
 from .login_log import TbLoginLog
 from .token_blacklist import TbTokenBlacklist
@@ -13,7 +13,7 @@ from .token_blacklist import TbTokenBlacklist
 __all__ = [
     "TbDept",
     "TbRole",
-    "TbUser",
+    "St00400",
     "TbUserRole",
     "TbLoginLog",
     "TbTokenBlacklist",
