@@ -3,6 +3,7 @@
 임포트 순서: 참조 의존성을 고려하여 부서 → 권한 → 사용자 → 매핑/로그 순서로 임포트합니다.
 """
 
+from .cm_dept_master import CmDeptMaster
 from .dept import TbDept
 from .role import TbRole
 from .user import St00400
@@ -11,6 +12,7 @@ from .login_log import TbLoginLog
 from .token_blacklist import TbTokenBlacklist
 
 __all__ = [
+    "CmDeptMaster",
     "TbDept",
     "TbRole",
     "St00400",
