@@ -1,15 +1,57 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
 
+/* ─────────────────────────────────────────────────────────
+   SeAH Brand Design Tokens (Tailwind CSS v4 @theme)
+   Primary Gray  : RGB(59, 73, 81)  → #3B4951
+   Primary Orange: RGB(229, 78, 43) → #E54E2B
+   Fonts         : Yoon Gothic 500 (KR) / The Sans (EN) — licensed
+                   Noto Sans KR used as functional substitute
+───────────────────────────────────────────────────────── */
+@theme {
+  /* SeAH Gray scale */
+  --color-seah-gray-50:  #eef0f1;
+  --color-seah-gray-100: #d4d9db;
+  --color-seah-gray-200: #aab3b8;
+  --color-seah-gray-300: #7f8e95;
+  --color-seah-gray-400: #596872;
+  --color-seah-gray-500: #3B4951;
+  --color-seah-gray-600: #303c43;
+  --color-seah-gray-700: #252e34;
+  --color-seah-gray-800: #192025;
+  --color-seah-gray-900: #0e1215;
+
+  /* SeAH Orange scale */
+  --color-seah-orange-50:  #fdf2ef;
+  --color-seah-orange-100: #fad8cf;
+  --color-seah-orange-200: #f4ac9d;
+  --color-seah-orange-300: #ed7d6a;
+  --color-seah-orange-400: #e76349;
+  --color-seah-orange-500: #E54E2B;
+  --color-seah-orange-600: #c34325;
+  --color-seah-orange-700: #9d361d;
+  --color-seah-orange-800: #762916;
+  --color-seah-orange-900: #4e1b0e;
+
+  /* Semantic aliases */
+  --color-brand-primary:   var(--color-seah-orange-500);
+  --color-brand-secondary: var(--color-seah-gray-500);
+
+  /* SeAH brand font stack (Yoon Gothic 500 / The Sans are licensed;
+     Noto Sans KR is the functional substitute for Korean text) */
+  --font-brand-ko: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-brand-en: "The Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
 :root {
-  font-family: "Noto Sans KR", sans-serif;
-  --font-sans: "Noto Sans KR", sans-serif;
+  font-family: var(--font-brand-ko);
+  --font-sans: var(--font-brand-ko);
 }
 
 body {
   margin: 0;
-  background-color: #f8fafc; /* Slate 50 */
-  color: #0f172a; /* Slate 900 */
+  background-color: #f8fafc;
+  color: var(--color-seah-gray-900);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -33,7 +75,7 @@ body {
 }
 
 .prose :where(a):not(:where([class~="not-prose"] *)) {
-  color: #4f46e5;
+  color: var(--color-seah-orange-500);
   text-decoration: none;
   font-weight: 500;
 }
@@ -202,8 +244,9 @@ body {
 }
 
 .bg-mesh {
-  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+  /* SeAH brand: orange centre glow + gray corner accent */
+  background: radial-gradient(circle at 50% 50%, rgba(229, 78, 43, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 100% 0%, rgba(59, 73, 81, 0.05) 0%, transparent 40%);
   background-size: 200% 200%;
   animation: mesh-gradient 15s ease infinite;
 }
