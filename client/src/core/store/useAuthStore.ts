@@ -1,59 +1,60 @@
 /**
- * Auth Store (Skeleton)
+ * Auth Store
  *
- * 인증 상태 관리
+ * 인증 상태 관리 (Zustand + localStorage 지속성)
  *
  * @example
- * const { user, login, logout } = useAuthStore();
+ * const { user, login, logout, isAuthenticated } = useAuthStore();
  */
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  // TODO: 추가 사용자 정보
-}
+import { authApi } from '@/domains/auth/api';
+import type { AuthUser } from '@/domains/auth/types';
 
 interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   token: string | null;
   isAuthenticated: boolean;
 
-  // Actions
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  setUser: (user: User) => void;
+  login: (loginId: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  setUser: (user: AuthUser) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
 
-      login: async (email: string, password: string) => {
-        // TODO: API 호출로 로그인 처리
-        // const response = await apiClient.post('/auth/login', { email, password });
-        // set({ user: response.data.user, token: response.data.token, isAuthenticated: true });
-
-        console.log('Login called with:', email, password);
+      login: async (loginId: string, password: string) => {
+        const data = await authApi.login({ loginId, password });
+        set({ user: data.user, token: data.accessToken, isAuthenticated: true });
       },
 
-      logout: () => {
-        // TODO: 토큰 삭제, 상태 초기화
-        set({ user: null, token: null, isAuthenticated: false });
+      logout: async () => {
+        try {
+          if (get().isAuthenticated) {
+            await authApi.logout();
+          }
+        } finally {
+          set({ user: null, token: null, isAuthenticated: false });
+        }
       },
 
-      setUser: (user: User) => {
+      setUser: (user: AuthUser) => {
         set({ user, isAuthenticated: true });
       },
     }),
     {
-      name: 'auth-storage', // localStorage key
+      name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );
