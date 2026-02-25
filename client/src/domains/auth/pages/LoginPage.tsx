@@ -54,25 +54,21 @@ export default function LoginPage() {
       {/* ── 상단 브랜드 헤더 ── */}
       <header className="flex-shrink-0 bg-[#53565A] px-6 py-4">
         <div className="flex items-center gap-3">
-          {/* SeAH Symbol Mark – S+A 결합 심볼 */}
+          {/* SeAH CI 심볼 – 꺾쇠(>) 모양 */}
           <svg
             viewBox="0 0 48 48"
             className="w-9 h-9 flex-shrink-0"
             aria-label="SeAH Symbol"
           >
             <rect width="48" height="48" rx="4" fill="#E94E1B" />
-            <text
-              x="50%"
-              y="54%"
-              dominantBaseline="middle"
-              textAnchor="middle"
-              fill="white"
-              fontSize="22"
-              fontWeight="700"
-              fontFamily="'Pretendard', 'Helvetica Neue', Arial, sans-serif"
-            >
-              SA
-            </text>
+            <path
+              d="M14 10L34 24L14 38"
+              stroke="white"
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
           </svg>
           <div className="flex flex-col leading-tight">
             <span className="text-white font-bold text-[15px] tracking-wide">
@@ -93,7 +89,7 @@ export default function LoginPage() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#E94E1B]/8 rounded-full mb-4">
               <div className="w-1.5 h-1.5 rounded-full bg-[#E94E1B]" />
               <span className="text-[#E94E1B] text-xs font-semibold tracking-wide">
-                EPRO Mobile
+                SEAH CI
               </span>
             </div>
             <h1 className="text-[#53565A] text-[26px] font-bold leading-tight">
