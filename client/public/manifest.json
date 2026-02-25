@@ -1,0 +1,34 @@
+{
+  "name": "세아특수강 EPRO",
+  "short_name": "SeAH EPRO",
+  "description": "세아특수강 전자구매 모바일 시스템",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#53565A",
+  "lang": "ko",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "로그인",
+      "url": "/login",
+      "description": "로그인 페이지로 이동"
+    }
+  ]
+}
