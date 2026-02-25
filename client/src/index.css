@@ -1,46 +1,46 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 
 /* ─────────────────────────────────────────────────────────
    SeAH Brand Design Tokens (Tailwind CSS v4 @theme)
-   Primary Gray  : RGB(59, 73, 81)  → #3B4951
-   Primary Orange: RGB(229, 78, 43) → #E54E2B
-   Fonts         : Yoon Gothic 500 (KR) / The Sans (EN) — licensed
-                   Noto Sans KR used as functional substitute
+   Main Color (SeAH Gray)  : #53565A — 신뢰·포용
+   Point Color (SeAH Orange): #E94E1B — 열정·유연
+   Fonts: Pretendard (KR/EN) / Noto Sans KR fallback
 ───────────────────────────────────────────────────────── */
 @theme {
-  /* SeAH Gray scale */
-  --color-seah-gray-50:  #eef0f1;
-  --color-seah-gray-100: #d4d9db;
-  --color-seah-gray-200: #aab3b8;
-  --color-seah-gray-300: #7f8e95;
-  --color-seah-gray-400: #596872;
-  --color-seah-gray-500: #3B4951;
-  --color-seah-gray-600: #303c43;
-  --color-seah-gray-700: #252e34;
-  --color-seah-gray-800: #192025;
-  --color-seah-gray-900: #0e1215;
+  /* SeAH Gray scale (based on #53565A) */
+  --color-seah-gray-50:  #f3f3f4;
+  --color-seah-gray-100: #e0e1e2;
+  --color-seah-gray-200: #c1c3c5;
+  --color-seah-gray-300: #9ea0a3;
+  --color-seah-gray-400: #787b7f;
+  --color-seah-gray-500: #53565A;
+  --color-seah-gray-600: #45484b;
+  --color-seah-gray-700: #37393c;
+  --color-seah-gray-800: #292b2d;
+  --color-seah-gray-900: #1a1b1d;
 
-  /* SeAH Orange scale */
-  --color-seah-orange-50:  #fdf2ef;
-  --color-seah-orange-100: #fad8cf;
-  --color-seah-orange-200: #f4ac9d;
-  --color-seah-orange-300: #ed7d6a;
-  --color-seah-orange-400: #e76349;
-  --color-seah-orange-500: #E54E2B;
-  --color-seah-orange-600: #c34325;
-  --color-seah-orange-700: #9d361d;
-  --color-seah-orange-800: #762916;
-  --color-seah-orange-900: #4e1b0e;
+  /* SeAH Orange scale (based on #E94E1B) */
+  --color-seah-orange-50:  #fef3ef;
+  --color-seah-orange-100: #fddacf;
+  --color-seah-orange-200: #f5ad9a;
+  --color-seah-orange-300: #f08264;
+  --color-seah-orange-400: #ec6840;
+  --color-seah-orange-500: #E94E1B;
+  --color-seah-orange-600: #c74218;
+  --color-seah-orange-700: #a53614;
+  --color-seah-orange-800: #7e2a0f;
+  --color-seah-orange-900: #571d0a;
 
   /* Semantic aliases */
   --color-brand-primary:   var(--color-seah-orange-500);
   --color-brand-secondary: var(--color-seah-gray-500);
 
-  /* SeAH brand font stack (Yoon Gothic 500 / The Sans are licensed;
-     Noto Sans KR is the functional substitute for Korean text) */
-  --font-brand-ko: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  --font-brand-en: "The Sans", "Helvetica Neue", Arial, sans-serif;
+  /* Font stacks — Pretendard for modern readability,
+     Noto Sans KR + system fonts as fallback */
+  --font-brand-ko: "Pretendard Variable", "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-brand-en: "Pretendard Variable", "Pretendard", "Helvetica Neue", Arial, sans-serif;
 }
 
 :root {
