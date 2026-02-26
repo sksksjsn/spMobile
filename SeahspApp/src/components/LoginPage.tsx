@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { Eye, EyeOff, User, Lock, ChevronRight } from 'lucide-react';
+import { Eye, EyeOff, User, Lock } from 'lucide-react';
 
 const SAVED_ID_KEY = 'seah-epro-saved-id';
 const SAVED_REMEMBER_KEY = 'seah-epro-remember-id';
@@ -25,8 +25,6 @@ export default function LoginPage() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
-    // ID 저장 처리
     if (rememberMe) {
       localStorage.setItem(SAVED_ID_KEY, loginId);
       localStorage.setItem(SAVED_REMEMBER_KEY, 'true');
@@ -34,11 +32,7 @@ export default function LoginPage() {
       localStorage.removeItem(SAVED_ID_KEY);
       localStorage.removeItem(SAVED_REMEMBER_KEY);
     }
-
     setIsLoading(true);
-
-    // TODO: 실제 백엔드 API 연동
-    // 현재는 UI 데모용 딜레이
     setTimeout(() => {
       setIsLoading(false);
       alert(`로그인 시도: ${loginId}`);
@@ -46,232 +40,154 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-seah-gray-50 px-5 py-8">
-      {/* 상단 장식 그래디언트 — SeAH Gray 기반 + Orange 포인트 */}
-      <div className="pointer-events-none fixed top-0 right-0 left-0 h-[280px] overflow-hidden">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center bg-[#F8FAFC] px-6 py-10 font-sans">
+      {/* Background Atmosphere - Light Version */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(135deg, #37393c 0%, #53565A 40%, #787b7f 70%, #c1c3c5 100%)',
-          }}
-        />
-        {/* Orange 포인트 글로우 */}
-        <div
-          className="absolute -right-16 -bottom-16 h-64 w-64 rounded-full opacity-30"
+          className="absolute -top-[10%] -right-[10%] h-[600px] w-[600px] rounded-full blur-[120px] opacity-[0.05]"
           style={{ background: 'radial-gradient(circle, #E94E1B 0%, transparent 70%)' }}
         />
         <div
-          className="absolute -top-8 -left-8 h-48 w-48 rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle, #ffffff 0%, transparent 70%)' }}
+          className="absolute bottom-[0%] -left-[10%] h-[500px] w-[500px] rounded-full blur-[100px] opacity-[0.05]"
+          style={{ background: 'radial-gradient(circle, #53565A 0%, transparent 70%)' }}
         />
-        {/* 하단 곡선 */}
-        <svg
-          className="absolute bottom-0 left-0 w-full"
-          viewBox="0 0 1440 120"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0 120L0 80C240 20 480 0 720 20C960 40 1200 80 1440 60L1440 120H0Z"
-            fill="var(--color-seah-gray-50)"
-          />
-        </svg>
       </div>
 
-      {/* 로고 + 타이틀 영역 */}
-      <div className="relative z-10 mb-8 flex animate-fade-in flex-col items-center">
-        {/* SeAH 꺾쇠 로고 — SeAH Orange */}
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-card">
-          <svg viewBox="0 0 40 40" fill="none" className="h-10 w-10">
-            <rect width="40" height="40" rx="8" fill="#E94E1B" />
-            {/* 꺾쇠(>) 모양 — SeAH CI */}
-            <path
-              d="M14 10L26 20L14 30"
-              stroke="white"
-              strokeWidth="4.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </svg>
-        </div>
-        <h1 className="text-xl font-bold tracking-tight text-white">SeAH ePro</h1>
-        <p className="mt-1 text-sm font-medium text-white/70">전자구매 모바일 시스템</p>
-      </div>
+      {/* Main Card Container */}
+      <div className="relative z-10 w-full max-w-[440px] animate-fade-in">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-300">
+          {/* Top Orange Bar */}
+          <div className="h-1.5 w-full bg-seah-orange-500" />
 
-      {/* 로그인 카드 */}
-      <div className="relative z-10 w-full max-w-sm animate-slide-up">
-        <div className="rounded-2xl bg-white p-6 shadow-card">
-          <h2 className="mb-6 text-center text-lg font-semibold text-seah-gray-800">로그인</h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* 아이디 입력 필드 */}
-            <div>
-              <label
-                htmlFor="loginId"
-                className="mb-1.5 block text-sm font-medium text-seah-gray-600"
-              >
-                아이디
-              </label>
-              <div
-                className={`flex items-center gap-2.5 rounded-xl border-[1.5px] px-3.5 py-3 transition-all duration-200 ${
-                  idFocused
-                    ? 'border-seah-orange-500 shadow-input-focus'
-                    : 'border-seah-gray-200 hover:border-seah-gray-300'
-                }`}
-              >
-                <User
-                  size={18}
-                  className={`shrink-0 transition-colors duration-200 ${
-                    idFocused ? 'text-seah-orange-500' : 'text-seah-gray-400'
-                  }`}
-                />
-                <input
-                  id="loginId"
-                  type="text"
-                  value={loginId}
-                  onChange={(e) => setLoginId(e.target.value)}
-                  onFocus={() => setIdFocused(true)}
-                  onBlur={() => setIdFocused(false)}
-                  placeholder="아이디를 입력하세요"
-                  autoComplete="username"
-                  className="w-full bg-transparent text-sm text-seah-gray-800 outline-none placeholder:text-seah-gray-400"
-                  required
+          <div className="px-8 pt-12 pb-10 sm:px-12">
+            {/* Header Area */}
+            <div className="mb-10 flex flex-col items-center text-center">
+              <div className="mb-6 h-12">
+                <img
+                  src="/seah_ci.png"
+                  alt="SeAH Logo"
+                  className="h-full w-auto"
                 />
               </div>
+              <h1 className="text-2xl font-bold tracking-tight text-seah-gray-900 sm:text-3xl">
+                세아 ePro 시스템
+              </h1>
+              <p className="mt-2 text-sm font-medium text-seah-gray-500">
+                인증된 사용자만 접근할 수 있는 페이지입니다.
+              </p>
             </div>
 
-            {/* 비밀번호 입력 필드 */}
-            <div>
-              <label
-                htmlFor="password"
-                className="mb-1.5 block text-sm font-medium text-seah-gray-600"
-              >
-                비밀번호
-              </label>
-              <div
-                className={`flex items-center gap-2.5 rounded-xl border-[1.5px] px-3.5 py-3 transition-all duration-200 ${
-                  pwFocused
-                    ? 'border-seah-orange-500 shadow-input-focus'
-                    : 'border-seah-gray-200 hover:border-seah-gray-300'
-                }`}
-              >
-                <Lock
-                  size={18}
-                  className={`shrink-0 transition-colors duration-200 ${
-                    pwFocused ? 'text-seah-orange-500' : 'text-seah-gray-400'
-                  }`}
-                />
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setPwFocused(true)}
-                  onBlur={() => setPwFocused(false)}
-                  placeholder="비밀번호를 입력하세요"
-                  autoComplete="current-password"
-                  className="w-full bg-transparent text-sm text-seah-gray-800 outline-none placeholder:text-seah-gray-400"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="shrink-0 rounded-lg p-0.5 text-seah-gray-400 transition-colors hover:text-seah-gray-600 focus:outline-none"
-                  aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* ID Input */}
+              <div className="space-y-2">
+                <label htmlFor="loginId" className="block text-[13px] font-bold text-seah-gray-700">
+                  아이디
+                </label>
+                <div className={`relative flex items-center transition-all duration-300 ${idFocused ? 'ring-2 ring-seah-orange-500/10' : ''
+                  }`}>
+                  <div className="absolute left-4 z-10 text-seah-gray-400">
+                    <User size={18} />
+                  </div>
+                  <input
+                    id="loginId"
+                    type="text"
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)}
+                    onFocus={() => setIdFocused(true)}
+                    onBlur={() => setIdFocused(false)}
+                    placeholder="아이디를 입력하세요"
+                    className={`h-12 w-full rounded-xl border-[1.5px] pl-11 pr-4 text-[15px] font-medium transition-all duration-200 focus:outline-none ${idFocused ? 'border-seah-orange-500' : 'border-seah-gray-200 hover:border-seah-gray-300'
+                      }`}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Password Input */}
+              <div className="space-y-2">
+                <label htmlFor="password" className="block text-[13px] font-bold text-seah-gray-700">
+                  비밀번호
+                </label>
+                <div className={`relative flex items-center transition-all duration-300 ${pwFocused ? 'ring-2 ring-seah-orange-500/10' : ''
+                  }`}>
+                  <div className="absolute left-4 z-10 text-seah-gray-400">
+                    <Lock size={18} />
+                  </div>
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setPwFocused(true)}
+                    onBlur={() => setPwFocused(false)}
+                    placeholder="비밀번호를 입력하세요"
+                    className={`h-12 w-full rounded-xl border-[1.5px] pl-11 pr-12 text-[15px] font-medium transition-all duration-200 focus:outline-none ${pwFocused ? 'border-seah-orange-500' : 'border-seah-gray-200 hover:border-seah-gray-300'
+                      }`}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 text-seah-gray-400 hover:text-seah-gray-600 focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Options Row */}
+              <div className="flex items-center justify-between px-0.5">
+                <label className="flex cursor-pointer items-center gap-2 group">
+                  <div className="relative flex h-5 w-5 items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={() => setRememberMe(!rememberMe)}
+                      className="peer h-full w-full cursor-pointer appearance-none rounded-md border-[1.5px] border-seah-gray-300 transition-all checked:border-seah-orange-500 checked:bg-seah-orange-500"
+                    />
+                    <svg
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                    >
+                      <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-seah-gray-500 group-hover:text-seah-gray-700">아이디 저장</span>
+                </label>
+                <button type="button" className="text-sm font-bold text-seah-orange-500 hover:text-seah-orange-600 transition-colors">
+                  비밀번호 찾기
                 </button>
               </div>
-            </div>
 
-            {/* ID 저장 체크박스 */}
-            <div className="flex items-center gap-2 pt-1">
+              {/* Submit Button */}
               <button
-                type="button"
-                role="checkbox"
-                aria-checked={rememberMe}
-                onClick={() => setRememberMe(!rememberMe)}
-                className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-                  rememberMe
-                    ? 'border-seah-orange-500 bg-seah-orange-500'
-                    : 'border-seah-gray-300 bg-white hover:border-seah-gray-400'
-                }`}
+                type="submit"
+                disabled={isLoading || !loginId || !password}
+                className="group relative flex h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-seah-orange-500 text-[16px] font-bold text-white transition-all duration-300 hover:bg-seah-orange-600 active:scale-[0.98] disabled:opacity-50"
               >
-                {rememberMe && (
-                  <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
-                    <path
-                      d="M2.5 6L5 8.5L9.5 3.5"
-                      stroke="white"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                {isLoading ? (
+                  <div className="h-6 w-6 animate-spin rounded-full border-[3px] border-white/30 border-t-white" />
+                ) : (
+                  <span>로그인</span>
                 )}
               </button>
-              <span
-                className="cursor-pointer select-none text-sm text-seah-gray-500"
-                onClick={() => setRememberMe(!rememberMe)}
-              >
-                아이디 저장
-              </span>
+            </form>
+          </div>
+
+          {/* Card Footer Area */}
+          <div className="border-t border-seah-gray-100 bg-[#F8FAFC] px-8 py-6 text-center sm:px-12">
+            <p className="text-[11px] font-medium text-seah-gray-400">
+              &copy; {new Date().getFullYear()} SeAH Special Steel Corp. All rights reserved.
+            </p>
+            <div className="mt-3 flex items-center justify-center gap-4 text-[11px] font-bold text-seah-gray-500">
+              <button className="hover:text-seah-orange-500 transition-colors">개인정보처리방침</button>
+              <button className="hover:text-seah-orange-500 transition-colors">이용약관</button>
+              <button className="hover:text-seah-orange-500 transition-colors">고객지원</button>
             </div>
-
-            {/* 로그인 버튼 — SeAH Orange */}
-            <button
-              type="submit"
-              disabled={isLoading || !loginId || !password}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-seah-orange-500 py-3.5 text-sm font-semibold text-white shadow-button transition-all duration-200 hover:bg-seah-orange-600 hover:shadow-button-hover focus:outline-none focus:ring-2 focus:ring-seah-orange-300 focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
-            >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  <span>로그인 중...</span>
-                </>
-              ) : (
-                <>
-                  <span>로그인</span>
-                  <ChevronRight size={16} />
-                </>
-              )}
-            </button>
-          </form>
+          </div>
         </div>
-
-        {/* 하단 안내 */}
-        <div className="mt-5 text-center">
-          <p className="text-xs leading-relaxed text-seah-gray-400">
-            접속 문의: IT팀 (내선 1234)
-          </p>
-        </div>
-      </div>
-
-      {/* 하단 저작권 */}
-      <div className="relative z-10 mt-auto pt-8">
-        <p className="text-center text-[11px] text-seah-gray-400">
-          &copy; {new Date().getFullYear()} SeAH Steel Holdings. All rights reserved.
-        </p>
       </div>
     </div>
   );
