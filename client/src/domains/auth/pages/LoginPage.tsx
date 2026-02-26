@@ -67,33 +67,15 @@ export default function LoginPage() {
           <div className="flex flex-col items-center mb-10">
             <div className="mb-6">
               <div className="h-12 w-auto flex items-center justify-center">
-                <svg
-                  className="text-[#E94E1B]"
-                  fill="none"
-                  height="40"
-                  viewBox="0 0 120 40"
-                  width="120"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M10 20C10 14.4772 14.4772 10 20 10H30V30H20C14.4772 30 10 25.5228 10 20Z"
-                    fill="currentColor"
-                  />
-                  <rect fill="#53565A" height="20" width="10" x="35" y="10" />
-                  <rect fill="#53565A" height="20" width="10" x="50" y="10" />
-                  <path d="M70 10H80V30H70V10Z" fill="currentColor" />
-                  <circle
-                    cx="100"
-                    cy="20"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                </svg>
+                <img
+                  src="/seahsp_ci.png"
+                  alt="SeAH Special Steel"
+                  className="h-full w-auto object-contain"
+                />
               </div>
             </div>
             <h1 className="text-slate-900 tracking-tight text-2xl font-bold leading-tight text-center">
-              SeAH EPRO System
+              전자구매시스템
             </h1>
             <p className="text-slate-500 text-sm font-normal leading-normal mt-2 text-center">
               사번과 비밀번호로 로그인하세요
@@ -212,31 +194,21 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-[#E94E1B] focus:ring-[#E94E1B] bg-slate-50"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-[#53565A]"
-                >
-                  아이디 저장
-                </label>
-              </div>
-              <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-medium text-[#E94E1B] hover:text-orange-600 transition-colors"
-                >
-                  비밀번호 찾기
-                </a>
-              </div>
+            {/* Remember Me */}
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-[#E94E1B] focus:ring-[#E94E1B] bg-slate-50"
+              />
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-[#53565A]"
+              >
+                아이디 저장
+              </label>
             </div>
 
             {/* Submit Button */}
@@ -284,30 +256,10 @@ export default function LoginPage() {
 
         {/* Footer / System Info */}
         <div className="bg-slate-50 px-6 py-4 border-t border-slate-100">
-          <div className="flex flex-col items-center justify-center gap-2 text-center">
+          <div className="flex items-center justify-center text-center">
             <p className="text-xs text-slate-400">
               © SeAH Special Steel Corp. All rights reserved.
             </p>
-            <div className="flex gap-4">
-              <a
-                href="#"
-                className="text-xs text-slate-500 hover:text-[#E94E1B] transition-colors"
-              >
-                Privacy
-              </a>
-              <a
-                href="#"
-                className="text-xs text-slate-500 hover:text-[#E94E1B] transition-colors"
-              >
-                Terms
-              </a>
-              <a
-                href="#"
-                className="text-xs text-slate-500 hover:text-[#E94E1B] transition-colors"
-              >
-                Help
-              </a>
-            </div>
           </div>
         </div>
       </main>
