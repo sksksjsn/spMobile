@@ -67,29 +67,11 @@ export default function LoginPage() {
           <div className="flex flex-col items-center mb-10">
             <div className="mb-6">
               <div className="h-12 w-auto flex items-center justify-center">
-                <svg
-                  className="text-[#E94E1B]"
-                  fill="none"
-                  height="40"
-                  viewBox="0 0 120 40"
-                  width="120"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M10 20C10 14.4772 14.4772 10 20 10H30V30H20C14.4772 30 10 25.5228 10 20Z"
-                    fill="currentColor"
-                  />
-                  <rect fill="#53565A" height="20" width="10" x="35" y="10" />
-                  <rect fill="#53565A" height="20" width="10" x="50" y="10" />
-                  <path d="M70 10H80V30H70V10Z" fill="currentColor" />
-                  <circle
-                    cx="100"
-                    cy="20"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                </svg>
+                <img
+                  src="/seahsp_ci.png"
+                  alt="SeAH 세아특수강"
+                  className="h-10 w-auto object-contain"
+                />
               </div>
             </div>
             <h1 className="text-slate-900 tracking-tight text-2xl font-bold leading-tight text-center">
