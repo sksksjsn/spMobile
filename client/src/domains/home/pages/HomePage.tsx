@@ -31,10 +31,10 @@ const MENU_ITEMS = [
 ];
 
 const SIDEBAR_NAV = [
-  { icon: Home, label: '홈', active: true },
-  { icon: Megaphone, label: '공지사항', active: false },
-  { icon: FileText, label: '거래명세서', active: false },
-  { icon: Truck, label: '반·출입 & 이송', active: false },
+  { icon: Home, label: '홈', active: true, path: '/' },
+  { icon: Megaphone, label: '공지사항', active: false, path: '/notice' },
+  { icon: FileText, label: '거래명세서', active: false, path: null },
+  { icon: Truck, label: '반·출입 & 이송', active: false, path: null },
 ];
 
 export function HomePage() {
@@ -110,9 +110,10 @@ export function HomePage() {
 
             {/* Nav links */}
             <nav className="p-2">
-              {SIDEBAR_NAV.map(({ icon: Icon, label, active }) => (
+              {SIDEBAR_NAV.map(({ icon: Icon, label, active, path }) => (
                 <button
                   key={label}
+                  onClick={() => path && navigate(path)}
                   className={[
                     'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors',
                     active
@@ -134,7 +135,10 @@ export function HomePage() {
         <main className="min-w-0 flex-1 space-y-4 lg:space-y-5">
           {/* Notice Banner */}
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex cursor-pointer items-center gap-3 px-4 py-3.5 transition-colors hover:bg-slate-50">
+            <div
+              className="flex cursor-pointer items-center gap-3 px-4 py-3.5 transition-colors hover:bg-slate-50"
+              onClick={() => navigate('/notice')}
+            >
               <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-seah-orange-500">
                 <Megaphone size={18} />
               </div>
