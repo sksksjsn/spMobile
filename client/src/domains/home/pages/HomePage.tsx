@@ -28,6 +28,7 @@ const MENU_ITEMS = [
 
 const SIDEBAR_NAV = [
   { icon: Home, label: '홈', active: true },
+  { icon: Megaphone, label: '공지사항', active: false },
   { icon: FileText, label: '거래명세서', active: false },
   { icon: Truck, label: '반·출입 & 이송', active: false },
 ];
