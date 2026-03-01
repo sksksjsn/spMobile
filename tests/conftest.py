@@ -21,22 +21,10 @@ from server.app.core.config import settings
 # 테스트 데이터베이스 설정
 # ====================
 
-# 테스트용 인메모리 SQLite 데이터베이스
+# 테스트용 인메모리 SQLite URL
+# 실제 엔진 생성은 test_db fixture 내부에서 수행하여
+# aiosqlite 없이도 단위 테스트를 실행할 수 있도록 합니다.
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-
-test_engine = create_async_engine(
-    TEST_DATABASE_URL,
-    echo=False,
-    connect_args={"check_same_thread": False},
-)
-
-TestAsyncSessionLocal = async_sessionmaker(
-    test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autoflush=False,
-    autocommit=False,
-)
 
 
 # ====================
@@ -64,19 +52,37 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
 
     각 테스트 함수마다 새로운 세션을 생성하고,
     테스트 종료 후 롤백합니다.
+
+    Note: 실제 프로젝트는 MSSQL을 사용합니다.
+    DB 통합 테스트가 필요하면 aiosqlite 설치 또는 MSSQL 연결을 설정하세요.
     """
+    # 엔진/세션팩토리를 fixture 내부에서 생성 (aiosqlite lazy import)
+    _engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        connect_args={"check_same_thread": False},
+    )
+    _session_factory = async_sessionmaker(
+        _engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autoflush=False,
+        autocommit=False,
+    )
+
     # 테이블 생성
-    async with test_engine.begin() as conn:
+    async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     # 세션 생성
-    async with TestAsyncSessionLocal() as session:
+    async with _session_factory() as session:
         yield session
         await session.rollback()
 
-    # 테이블 삭제
-    async with test_engine.begin() as conn:
+    # 테이블 삭제 및 엔진 정리
+    async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+    await _engine.dispose()
 
 
 # ====================
