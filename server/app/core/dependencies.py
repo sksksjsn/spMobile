@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.app.core.config import settings
 from server.app.core.database import get_db
+from server.app.domain.auth.service import AuthService
 
 
 # ====================
@@ -52,16 +53,10 @@ class AuthenticationChecker:
             authorization: Authorization 헤더 (Bearer {token})
 
         Returns:
-            dict: 검증된 사용자 정보
+            dict: 검증된 토큰 페이로드
 
         Raises:
-            HTTPException: 토큰이 유효하지 않은 경우
-
-        TODO: 실제 JWT 토큰 검증 로직 구현
-            - JWT 디코딩
-            - 토큰 만료 확인
-            - 사용자 존재 여부 확인
-            - 토큰 블랙리스트 확인
+            HTTPException: 토큰이 없거나 유효하지 않은 경우
         """
         if not authorization:
             raise HTTPException(
@@ -70,15 +65,24 @@ class AuthenticationChecker:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # TODO: JWT 토큰 파싱 및 검증
-        # scheme, token = authorization.split()
-        # if scheme.lower() != "bearer":
-        #     raise HTTPException(...)
-        # payload = decode_jwt(token)
-        # return payload
+        parts = authorization.split()
+        if len(parts) != 2 or parts[0].lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authorization header format",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
-        # 스텁: 임시 사용자 정보 반환
-        return {"user_id": 1, "username": "test_user"}
+        token = parts[1]
+        try:
+            payload = AuthService.decode_token(token)
+            return payload
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
     async def verify_api_key(self, x_api_key: Optional[str] = Header(None)) -> dict:
         """
