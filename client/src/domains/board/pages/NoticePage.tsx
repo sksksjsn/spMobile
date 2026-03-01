@@ -1,5 +1,13 @@
 import { useNavigate } from 'react-router-dom';
-import { Factory, Layers, LogOut, Megaphone } from 'lucide-react';
+import {
+  Factory,
+  FileText,
+  Home,
+  Layers,
+  LogOut,
+  Megaphone,
+  Truck,
+} from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 
 interface NoticeItem {
@@ -18,6 +26,13 @@ const NOTICE_LIST: NoticeItem[] = [
   { id: 6, title: '반·출입 및 이송 프로세스 매뉴얼 배포', date: '2024.08.25', isNew: false },
 ];
 
+const SIDEBAR_NAV = [
+  { icon: Home, label: '홈', active: false, path: '/' },
+  { icon: Megaphone, label: '공지사항', active: true, path: '/notice' },
+  { icon: FileText, label: '거래명세서', active: false, path: null },
+  { icon: Truck, label: '반·출입 & 이송', active: false, path: null },
+];
+
 export function NoticePage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -28,82 +43,131 @@ export function NoticePage() {
   };
 
   return (
-    <div className="relative flex min-h-dvh w-full flex-col overflow-x-hidden bg-white">
+    <div className="relative min-h-dvh bg-[#F8F9FA]">
       {/* ── Header ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 flex items-center justify-between bg-seah-gray-500 px-4 py-3 shadow-md">
-        <div className="flex items-center gap-2">
-          <div className="flex size-7 shrink-0 items-center justify-center text-white">
-            <Layers size={22} strokeWidth={2.5} />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-extrabold uppercase leading-none tracking-tight">
-              <span className="text-seah-orange-500">세아특수강</span>
-            </span>
-            <div className="mt-0.5 flex items-center gap-1">
-              <span className="text-xs font-bold text-white">{user?.userName ?? ''}</span>
-              <span className="text-[10px] font-normal text-white/50">({user?.loginId})</span>
+      <header className="sticky top-0 z-50 bg-seah-gray-500 shadow-md">
+        <div className="mx-auto flex max-w-screen-xl items-center justify-between px-4 py-3 md:px-6">
+          {/* Logo + User */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-8 shrink-0 items-center justify-center text-white">
+              <Layers size={22} strokeWidth={2.5} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-extrabold uppercase leading-none tracking-tight">
+                <span className="text-seah-orange-500">세아특수강</span>
+              </span>
+              <div className="mt-0.5 flex items-center gap-1">
+                <span className="text-xs font-bold text-white">{user?.userName ?? ''}</span>
+                <span className="text-[10px] font-normal text-white/50">
+                  ({user?.loginId})
+                </span>
+              </div>
             </div>
           </div>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="로그아웃"
+          >
+            <LogOut size={18} />
+            <span className="hidden text-sm font-medium md:inline">로그아웃</span>
+          </button>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center justify-center rounded-full p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          aria-label="로그아웃"
-        >
-          <LogOut size={20} />
-        </button>
       </header>
 
-      {/* ── Main ───────────────────────────────────────────── */}
-      <main className="flex-1">
-        {/* Page Title */}
-        <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-4">
-          <Megaphone size={20} className="text-seah-orange-500" />
-          <h2 className="text-lg font-bold text-seah-gray-500">공지사항</h2>
-        </div>
+      {/* ── Body ───────────────────────────────────────────── */}
+      <div className="mx-auto max-w-screen-xl px-4 pb-28 pt-6 md:px-6 md:pb-10 lg:flex lg:gap-8 lg:px-8 lg:pt-8">
 
-        {/* Notice List */}
-        <div className="flex flex-col">
-          {NOTICE_LIST.map((notice) => (
-            <div
-              key={notice.id}
-              className="flex cursor-pointer items-start justify-between border-b border-slate-100 px-4 py-5 transition-colors active:bg-slate-50"
-            >
-              <div className="flex flex-col gap-1 pr-4">
-                <div className="flex items-center gap-2">
-                  <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-seah-gray-500">
-                    {notice.title}
-                  </h3>
-                  {notice.isNew && (
-                    <span className="shrink-0 rounded-sm bg-seah-orange-500/10 px-1.5 py-0.5 text-[10px] font-bold text-seah-orange-500">
-                      NEW
-                    </span>
-                  )}
-                </div>
+        {/* ── Sidebar (desktop only) ─────────────────────── */}
+        <aside className="hidden lg:block lg:w-60 xl:w-64 shrink-0">
+          <div className="sticky top-20 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            {/* User info */}
+            <div className="bg-seah-gray-500 px-5 py-6 text-white">
+              <div className="mb-1 text-base font-bold leading-tight">
+                {user?.userName ?? ''}
               </div>
-              <span className="shrink-0 pt-1 text-xs text-slate-400">{notice.date}</span>
+              <div className="text-xs text-white/50">{user?.loginId}</div>
+              <div className="mt-3 inline-flex items-center rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                사용자
+              </div>
             </div>
-          ))}
-        </div>
-      </main>
+
+            {/* Nav links */}
+            <nav className="p-2">
+              {SIDEBAR_NAV.map(({ icon: Icon, label, active, path }) => (
+                <button
+                  key={label}
+                  onClick={() => path && navigate(path)}
+                  className={[
+                    'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors',
+                    active
+                      ? 'bg-seah-orange-500/8 font-semibold text-seah-orange-500'
+                      : 'text-seah-gray-500 hover:bg-slate-50',
+                  ].join(' ')}
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </aside>
+
+        {/* ── Main content ───────────────────────────────── */}
+        <main className="min-w-0 flex-1">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            {/* Page Title */}
+            <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-4">
+              <Megaphone size={20} className="text-seah-orange-500" />
+              <h2 className="text-lg font-bold text-seah-gray-500">공지사항</h2>
+            </div>
+
+            {/* Notice List */}
+            <div className="flex flex-col">
+              {NOTICE_LIST.map((notice) => (
+                <div
+                  key={notice.id}
+                  className="flex cursor-pointer items-start justify-between border-b border-slate-100 px-4 py-5 transition-colors last:border-b-0 hover:bg-slate-50 active:bg-slate-50"
+                >
+                  <div className="flex flex-col gap-1 pr-4">
+                    <div className="flex items-center gap-2">
+                      <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-seah-gray-500">
+                        {notice.title}
+                      </h3>
+                      {notice.isNew && (
+                        <span className="shrink-0 rounded-sm bg-seah-orange-500/10 px-1.5 py-0.5 text-[10px] font-bold text-seah-orange-500">
+                          NEW
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="shrink-0 pt-1 text-xs text-slate-400">{notice.date}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
 
       {/* ── Background Watermark ─────────────────────────── */}
-      <div className="pointer-events-none fixed bottom-24 right-0 select-none p-6 opacity-[0.03]">
+      <div className="pointer-events-none fixed bottom-24 right-0 select-none p-6 opacity-[0.03] md:bottom-6">
         <Factory size={140} className="text-seah-gray-500" />
       </div>
 
-      {/* ── Bottom Navigation ──────────────────────────────── */}
-      <nav className="sticky bottom-0 border-t border-slate-200 bg-white pb-8 pt-2">
-        <div className="flex justify-center">
+      {/* ── Bottom Navigation (mobile only) ─────────────── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white lg:hidden">
+        <div className="flex justify-center pb-2 pt-2">
           <button
             onClick={() => navigate('/')}
             className="flex flex-col items-center gap-1 px-8 py-2 text-seah-orange-500"
           >
-            <Megaphone size={24} fill="currentColor" strokeWidth={1.5} />
-            <span className="text-[10px] font-bold">공지사항</span>
+            <Home size={24} strokeWidth={2} fill="currentColor" />
+            <span className="text-[10px] font-bold">홈</span>
           </button>
         </div>
-        <div className="mt-2 flex justify-center">
+        <div className="flex justify-center pb-2">
           <div className="h-1 w-32 rounded-full bg-slate-200" />
         </div>
       </nav>
