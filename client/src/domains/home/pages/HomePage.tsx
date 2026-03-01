@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
@@ -10,6 +11,9 @@ import {
   Truck,
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
+import { boardApi } from '@/domains/board/api';
+import type { PopupNotice } from '@/domains/board/types';
+import { NoticePopup } from '@/domains/board/components/NoticePopup';
 
 const MENU_ITEMS = [
   {
@@ -36,6 +40,15 @@ const SIDEBAR_NAV = [
 export function HomePage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [popupNotices, setPopupNotices] = useState<PopupNotice[]>([]);
+
+  useEffect(() => {
+    boardApi.getPopupNotices().then((res) => {
+      setPopupNotices(res.notices);
+    }).catch(() => {
+      // 공지 조회 실패 시 팝업 미표시
+    });
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -44,6 +57,7 @@ export function HomePage() {
 
   return (
     <div className="relative min-h-dvh bg-[#F8F9FA]">
+      <NoticePopup notices={popupNotices} />
       {/* ── Header ─────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-seah-gray-500 shadow-md">
         <div className="mx-auto flex max-w-screen-xl items-center justify-between px-4 py-3 md:px-6">
