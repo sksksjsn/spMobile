@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [errorPopup, setErrorPopup] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('epro-saved-id');
@@ -42,8 +43,8 @@ export default function LoginPage() {
       const msg =
         err && typeof err === 'object' && 'message' in err
           ? String((err as { message: unknown }).message)
-          : '로그인에 실패했습니다. 아이디 또는 비밀번호를 확인해주세요.';
-      toast.error(msg);
+          : '아이디 / 패스워드가 일치하지 않습니다.';
+      setErrorPopup(msg);
     } finally {
       setIsLoading(false);
     }
@@ -263,6 +264,41 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
+
+      {/* Login Failure Popup */}
+      {errorPopup !== null && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-[2px]">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden p-6 flex flex-col gap-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-50 flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <div className="flex-1 pt-1">
+                <p className="text-[15px] text-[#53565A] font-medium leading-relaxed">
+                  {errorPopup}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setErrorPopup(null)}
+                className="bg-[#E94E1B] text-white px-8 py-2.5 rounded-lg text-sm font-semibold
+                           hover:bg-[#D14518] transition-colors shadow-sm active:scale-95"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
