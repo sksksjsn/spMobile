@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
+  Building2,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -11,7 +12,7 @@ import {
   LogOut,
   Megaphone,
   FileText,
-  Pencil,
+  Plus,
   RotateCcw,
   Search,
   Truck,
@@ -207,6 +208,21 @@ function LogisticsCard({ item }: { item: LogisticsItem }) {
 export function LogisticsListPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+
+  // FAB state
+  const [fabOpen, setFabOpen] = useState(false);
+  const fabRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!fabOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (fabRef.current && !fabRef.current.contains(e.target as Node)) {
+        setFabOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [fabOpen]);
 
   // Search state
   const [filterOpen, setFilterOpen] = useState(true);
@@ -593,13 +609,71 @@ export function LogisticsListPage() {
         <Factory size={140} className="text-seah-gray-500" />
       </div>
 
-      {/* ── FAB Button ───────────────────────────────────── */}
-      <button
-        className="fixed bottom-24 right-5 z-40 flex size-14 items-center justify-center rounded-full bg-seah-orange-500 shadow-lg transition-all hover:bg-seah-orange-600 hover:shadow-xl active:scale-95 lg:bottom-8"
-        aria-label="새 반출입 등록"
+      {/* ── FAB Backdrop ─────────────────────────────────── */}
+      {fabOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20"
+          onClick={() => setFabOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ── FAB Group ────────────────────────────────────── */}
+      <div
+        ref={fabRef}
+        className="fixed bottom-24 right-5 z-40 flex flex-col items-end gap-3 lg:bottom-8"
       >
-        <Pencil size={22} className="text-white" />
-      </button>
+        {/* Sub-buttons */}
+        {fabOpen && (
+          <>
+            {/* 반출 등록 */}
+            <div className="flex items-center gap-2">
+              <span className="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-seah-gray-500 shadow-md">
+                반출
+              </span>
+              <button
+                onClick={() => {
+                  setFabOpen(false);
+                  navigate('/logistics/register/export');
+                }}
+                className="flex size-12 items-center justify-center rounded-full bg-seah-orange-500 shadow-md transition-all hover:bg-seah-orange-600 active:scale-95"
+                aria-label="반출 등록"
+              >
+                <Truck size={20} className="text-white" />
+              </button>
+            </div>
+
+            {/* 사업장이동 등록 */}
+            <div className="flex items-center gap-2">
+              <span className="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-seah-gray-500 shadow-md">
+                사업장이동
+              </span>
+              <button
+                onClick={() => {
+                  setFabOpen(false);
+                  navigate('/logistics/register/transfer');
+                }}
+                className="flex size-12 items-center justify-center rounded-full bg-seah-gray-500 shadow-md transition-all hover:bg-seah-gray-600 active:scale-95"
+                aria-label="사업장이동 등록"
+              >
+                <Building2 size={20} className="text-white" />
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Main FAB */}
+        <button
+          onClick={() => setFabOpen((v) => !v)}
+          className={[
+            'flex size-14 items-center justify-center rounded-full bg-seah-orange-500 shadow-lg transition-all hover:bg-seah-orange-600 hover:shadow-xl active:scale-95',
+            fabOpen ? 'rotate-45' : '',
+          ].join(' ')}
+          aria-label="등록 메뉴 열기"
+        >
+          <Plus size={26} className="text-white" />
+        </button>
+      </div>
 
       {/* ── Bottom Navigation (mobile only) ─────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white lg:hidden">
