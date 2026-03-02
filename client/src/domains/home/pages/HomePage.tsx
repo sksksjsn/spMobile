@@ -21,12 +21,14 @@ const MENU_ITEMS = [
     title: '거래명세서',
     subtitle: 'Transaction Statements',
     description: '거래 내역 및 명세서를 조회합니다',
+    path: null,
   },
   {
     icon: Truck,
     title: '반·출입 & 이송',
     subtitle: 'In/Outbound & Transfer',
     description: '물자 반입·출입 및 이송 현황을 관리합니다',
+    path: '/logistics',
   },
 ];
 
@@ -34,7 +36,7 @@ const SIDEBAR_NAV = [
   { icon: Home, label: '홈', active: true, path: '/' },
   { icon: Megaphone, label: '공지사항', active: false, path: '/notice' },
   { icon: FileText, label: '거래명세서', active: false, path: null },
-  { icon: Truck, label: '반·출입 & 이송', active: false, path: null },
+  { icon: Truck, label: '반·출입 & 이송', active: false, path: '/logistics' },
 ];
 
 export function HomePage() {
@@ -167,6 +169,7 @@ export function HomePage() {
             {MENU_ITEMS.map((item) => (
               <button
                 key={item.title}
+                onClick={() => item.path && navigate(item.path)}
                 className="group flex w-full flex-col rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-all hover:border-seah-orange-200 hover:shadow-md active:scale-[0.98] active:bg-slate-50 lg:p-6"
               >
                 {/* Icon */}
