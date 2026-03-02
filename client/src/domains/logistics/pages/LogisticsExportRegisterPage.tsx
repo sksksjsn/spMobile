@@ -18,6 +18,8 @@ const DEPT_MAP: Record<string, string[]> = {
   창원: ['생산팀(창원)', '설비팀(창원)'],
   군산: ['품질팀(군산)', '생산팀(군산)'],
 };
+const ALL_DEPTS = Object.values(DEPT_MAP).flat();
+const TRANSPORT_TYPES = ['자가운반', '택배', '화물차량', '용달', '기타'];
 
 interface MaterialRow {
   id: number;
@@ -32,23 +34,47 @@ function newRow(): MaterialRow {
   return { id: rowIdSeq++, name: '', quantity: '', unit: 'EA' };
 }
 
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+const INPUT_CLS =
+  'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 placeholder-slate-300 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400';
+const SELECT_CLS =
+  'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400';
+const PHONE_CLS =
+  'rounded-lg border border-slate-200 px-2 py-2 text-center text-sm text-seah-gray-500 placeholder-slate-300 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400';
+
 export function LogisticsExportRegisterPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
-  const [outSite, setOutSite] = useState(SITES[0]);
-  const [outDept, setOutDept] = useState(DEPT_MAP[SITES[0]][0]);
-  const [inSite, setInSite] = useState(SITES[1]);
-  const [company, setCompany] = useState('');
-  const [manager, setManager] = useState('');
-  const [remark, setRemark] = useState('');
+  // 반출 사업장
+  const [outSite, setOutSite] = useState(SITES[1]); // 포항
+
+  // 반출 일자
+  const [exportDate, setExportDate] = useState(todayStr());
+
+  // 작성 담당자 정보
+  const [authorName, setAuthorName] = useState(user?.userName ?? '');
+  const [authorDept, setAuthorDept] = useState('');
+  const [authorPhone1, setAuthorPhone1] = useState('010');
+  const [authorPhone2, setAuthorPhone2] = useState('');
+  const [authorPhone3, setAuthorPhone3] = useState('');
+
+  // 협력업체 정보
+  const [partnerCompany, setPartnerCompany] = useState('');
+  const [receiverName, setReceiverName] = useState('');
+  const [receiverPhone1, setReceiverPhone1] = useState('010');
+  const [receiverPhone2, setReceiverPhone2] = useState('');
+  const [receiverPhone3, setReceiverPhone3] = useState('');
+
+  // 운송 유형
+  const [transportType, setTransportType] = useState('');
+
+  // 자재 목록
   const [rows, setRows] = useState<MaterialRow[]>([newRow()]);
   const [submitting, setSubmitting] = useState(false);
-
-  function handleOutSiteChange(val: string) {
-    setOutSite(val);
-    setOutDept(DEPT_MAP[val][0]);
-  }
 
   function addRow() {
     setRows((prev) => [...prev, newRow()]);
@@ -63,9 +89,10 @@ export function LogisticsExportRegisterPage() {
   }
 
   function validate() {
-    if (!company.trim()) return '업체명을 입력해주세요.';
-    if (!manager.trim()) return '담당자를 입력해주세요.';
-    if (outSite === inSite) return '반출사업장과 반입사업장이 같을 수 없습니다.';
+    if (!authorName.trim()) return '작성 담당자명을 입력해주세요.';
+    if (!authorDept) return '작성 담당자 부서명을 선택해주세요.';
+    if (!partnerCompany.trim()) return '협력업체를 입력해주세요.';
+    if (!transportType) return '운송 유형을 선택해주세요.';
     for (const r of rows) {
       if (!r.name.trim()) return '자재명을 입력해주세요.';
       if (!r.quantity || isNaN(Number(r.quantity)) || Number(r.quantity) <= 0)
@@ -145,51 +172,15 @@ export function LogisticsExportRegisterPage() {
             <h2 className="mb-4 text-sm font-bold text-seah-gray-500">기본 정보</h2>
 
             <div className="space-y-4">
-              {/* 반출사업장 / 반출부서 */}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-500">
-                    반출사업장 <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={outSite}
-                    onChange={(e) => handleOutSiteChange(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
-                  >
-                    {SITES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-500">
-                    반출부서 <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={outDept}
-                    onChange={(e) => setOutDept(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
-                  >
-                    {(DEPT_MAP[outSite] ?? []).map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* 반입사업장 */}
+              {/* 반출 사업장 (from → to) */}
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-500">
-                  반입사업장 <span className="text-rose-500">*</span>
+                  반출 사업장 <span className="text-rose-500">*</span>
                 </label>
                 <select
-                  value={inSite}
-                  onChange={(e) => setInSite(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
+                  value={outSite}
+                  onChange={(e) => setOutSite(e.target.value)}
+                  className={SELECT_CLS}
                 >
                   {SITES.map((s) => (
                     <option key={s} value={s}>
@@ -199,44 +190,173 @@ export function LogisticsExportRegisterPage() {
                 </select>
               </div>
 
-              {/* 업체명 */}
+              {/* 반출 일자 */}
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-500">
-                  업체명 <span className="text-rose-500">*</span>
+                  반출 일자 <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  type="text"
-                  placeholder="업체명 입력"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 placeholder-slate-300 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
+                  type="date"
+                  value={exportDate}
+                  onChange={(e) => setExportDate(e.target.value)}
+                  className={INPUT_CLS}
                 />
               </div>
 
-              {/* 담당자 */}
+              {/* 작성 담당자명 */}
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-500">
-                  담당자 <span className="text-rose-500">*</span>
+                  작성 담당자명 <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="담당자명 입력"
-                  value={manager}
-                  onChange={(e) => setManager(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 placeholder-slate-300 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
+                  placeholder="담당자명"
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  className={INPUT_CLS}
                 />
               </div>
 
-              {/* 비고 */}
+              {/* 작성 담당자 부서명 */}
               <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-500">비고</label>
-                <textarea
-                  placeholder="비고 입력 (선택)"
-                  value={remark}
-                  onChange={(e) => setRemark(e.target.value)}
-                  rows={3}
-                  className="w-full resize-none rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 placeholder-slate-300 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
+                <label className="mb-1 block text-xs font-semibold text-slate-500">
+                  작성 담당자 부서명 <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={authorDept}
+                  onChange={(e) => setAuthorDept(e.target.value)}
+                  className={SELECT_CLS}
+                >
+                  <option value="">부서를 선택해주세요</option>
+                  {ALL_DEPTS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 작성 담당자 연락처 */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-500">
+                  작성 담당자 연락처
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={3}
+                    placeholder="010"
+                    value={authorPhone1}
+                    onChange={(e) => setAuthorPhone1(e.target.value.replace(/\D/g, ''))}
+                    className={`w-16 ${PHONE_CLS}`}
+                  />
+                  <span className="text-slate-400">-</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    placeholder="0000"
+                    value={authorPhone2}
+                    onChange={(e) => setAuthorPhone2(e.target.value.replace(/\D/g, ''))}
+                    className={`flex-1 ${PHONE_CLS}`}
+                  />
+                  <span className="text-slate-400">-</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    placeholder="0000"
+                    value={authorPhone3}
+                    onChange={(e) => setAuthorPhone3(e.target.value.replace(/\D/g, ''))}
+                    className={`flex-1 ${PHONE_CLS}`}
+                  />
+                </div>
+              </div>
+
+              {/* 협력업체 */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-500">
+                  협력업체 <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="협력업체명 입력"
+                  value={partnerCompany}
+                  onChange={(e) => setPartnerCompany(e.target.value)}
+                  className={INPUT_CLS}
                 />
+              </div>
+
+              {/* 협력업체 인수자명 */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-500">
+                  협력업체 인수자명
+                </label>
+                <input
+                  type="text"
+                  placeholder="인수자명 입력"
+                  value={receiverName}
+                  onChange={(e) => setReceiverName(e.target.value)}
+                  className={INPUT_CLS}
+                />
+              </div>
+
+              {/* 협력업체 인수자 전화번호 */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-500">
+                  협력업체 인수자 전화번호
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={3}
+                    placeholder="010"
+                    value={receiverPhone1}
+                    onChange={(e) => setReceiverPhone1(e.target.value.replace(/\D/g, ''))}
+                    className={`w-16 ${PHONE_CLS}`}
+                  />
+                  <span className="text-slate-400">-</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    placeholder="0000"
+                    value={receiverPhone2}
+                    onChange={(e) => setReceiverPhone2(e.target.value.replace(/\D/g, ''))}
+                    className={`flex-1 ${PHONE_CLS}`}
+                  />
+                  <span className="text-slate-400">-</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={4}
+                    placeholder="0000"
+                    value={receiverPhone3}
+                    onChange={(e) => setReceiverPhone3(e.target.value.replace(/\D/g, ''))}
+                    className={`flex-1 ${PHONE_CLS}`}
+                  />
+                </div>
+              </div>
+
+              {/* 운송 유형 */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-500">
+                  운송 유형 <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={transportType}
+                  onChange={(e) => setTransportType(e.target.value)}
+                  className={SELECT_CLS}
+                >
+                  <option value="">선택해주세요</option>
+                  {TRANSPORT_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -257,10 +377,7 @@ export function LogisticsExportRegisterPage() {
 
             <div className="space-y-3">
               {rows.map((row, idx) => (
-                <div
-                  key={row.id}
-                  className="rounded-lg border border-slate-100 bg-slate-50 p-3"
-                >
+                <div key={row.id} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-400">자재 {idx + 1}</span>
                     {rows.length > 1 && (
