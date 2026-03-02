@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Layers, LogOut, Package, X } from 'lucide-react';
+import { ArrowLeft, Camera, FolderOpen, Layers, LogOut, Package, X } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 import { useExportDraftStore } from '../store/useExportDraftStore';
 
 const UNITS = ['EA', '개', '세트', 'KG', 'TON', 'M', 'BOX', '장'];
-
-const REASONS = ['수리', '교체', '반품', '폐기', '기타'];
 
 const INPUT_CLS =
   'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 ' +
@@ -37,6 +35,7 @@ export function ExportItemAddPage() {
   const [photos, setPhotos] = useState<string[]>(editTarget?.photos ?? []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     return () => {
@@ -72,7 +71,7 @@ export function ExportItemAddPage() {
     if (!unit) return '단위를 선택해주세요.';
     if (!quantity || isNaN(Number(quantity)) || Number(quantity) <= 0)
       return '올바른 반출 수량을 입력해주세요.';
-    if (!reason) return '반출 사유를 선택해주세요.';
+    if (!reason.trim()) return '반출 사유를 입력해주세요.';
     if (photos.length === 0) return '사진을 최소 1장 첨부해주세요.';
     return null;
   }
@@ -230,18 +229,13 @@ export function ExportItemAddPage() {
                 <label className={LABEL_CLS}>
                   반출 사유 <span className="text-rose-500">*</span>
                 </label>
-                <select
+                <input
+                  type="text"
+                  placeholder="반출 사유를 입력해주세요 (예: 수리, 교체, 반품 등)"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className={SELECT_CLS}
-                >
-                  <option value="">사유를 선택해주세요</option>
-                  {REASONS.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
+                  className={INPUT_CLS}
+                />
               </div>
 
               {/* 비고 */}
@@ -295,23 +289,47 @@ export function ExportItemAddPage() {
             )}
 
             {/* 사진 추가 버튼 */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className={
-                'flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed ' +
-                'border-slate-300 py-4 text-sm font-medium text-slate-400 transition-colors ' +
-                'hover:border-seah-orange-400 hover:text-seah-orange-500'
-              }
-            >
-              <Camera size={18} />
-              사진 추가
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className={
+                  'flex items-center justify-center gap-2 rounded-lg border-2 border-dashed ' +
+                  'border-slate-300 py-4 text-sm font-medium text-slate-400 transition-colors ' +
+                  'hover:border-seah-orange-400 hover:text-seah-orange-500'
+                }
+              >
+                <FolderOpen size={18} />
+                갤러리에서 선택
+              </button>
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                className={
+                  'flex items-center justify-center gap-2 rounded-lg border-2 border-dashed ' +
+                  'border-slate-300 py-4 text-sm font-medium text-slate-400 transition-colors ' +
+                  'hover:border-seah-orange-400 hover:text-seah-orange-500'
+                }
+              >
+                <Camera size={18} />
+                카메라로 촬영
+              </button>
+            </div>
+            {/* 갤러리 파일 선택 input */}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
               multiple
+              className="hidden"
+              onChange={handlePhotoAdd}
+            />
+            {/* 카메라 직접 촬영 input */}
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
               className="hidden"
               onChange={handlePhotoAdd}
             />
