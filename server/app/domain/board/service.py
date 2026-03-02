@@ -8,7 +8,12 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.app.domain.board.repositories.board_repository import BoardRepository
-from server.app.domain.board.schemas import PopupNoticeListResponse, PopupNoticeSchema
+from server.app.domain.board.schemas import (
+    NoticeListResponse,
+    NoticeSchema,
+    PopupNoticeListResponse,
+    PopupNoticeSchema,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +38,23 @@ class BoardService:
         return PopupNoticeListResponse(
             notices=[
                 PopupNoticeSchema.model_validate(notice, from_attributes=True)
+                for notice in notices
+            ]
+        )
+
+    async def get_notices(self) -> NoticeListResponse:
+        """
+        공지사항 목록을 반환합니다 (최신순).
+
+        Returns:
+            NoticeListResponse: 공지사항 목록
+        """
+        notices = await self.board_repo.get_notices()
+        logger.info(f"Notices fetched: {len(notices)} items")
+
+        return NoticeListResponse(
+            notices=[
+                NoticeSchema.model_validate(notice, from_attributes=True)
                 for notice in notices
             ]
         )
