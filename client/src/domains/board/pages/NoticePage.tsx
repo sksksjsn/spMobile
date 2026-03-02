@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  ChevronDown,
   Factory,
   FileText,
   Home,
@@ -9,22 +11,8 @@ import {
   Truck,
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
-
-interface NoticeItem {
-  id: number;
-  title: string;
-  date: string;
-  isNew: boolean;
-}
-
-const NOTICE_LIST: NoticeItem[] = [
-  { id: 1, title: '[안내] 2024년 하반기 시스템 정기 점검 일정 안내', date: '2024.11.21', isNew: true },
-  { id: 2, title: 'EPRO 모바일 앱 고도화 업데이트 공지', date: '2024.11.20', isNew: true },
-  { id: 3, title: '개인정보 처리방침 개정 및 적용 안내', date: '2024.11.15', isNew: false },
-  { id: 4, title: '거래명세서 출력 방식 변경 안내 (Web/App)', date: '2024.11.08', isNew: false },
-  { id: 5, title: '추석 연휴 기간 시스템 고객센터 운영 안내', date: '2024.09.10', isNew: false },
-  { id: 6, title: '반·출입 및 이송 프로세스 매뉴얼 배포', date: '2024.08.25', isNew: false },
-];
+import { boardApi } from '../api';
+import type { Notice } from '../types';
 
 const SIDEBAR_NAV = [
   { icon: Home, label: '홈', active: false, path: '/' },
@@ -33,13 +21,46 @@ const SIDEBAR_NAV = [
   { icon: Truck, label: '반·출입 & 이송', active: false, path: null },
 ];
 
+function formatDate(regDt: string | null): string {
+  if (!regDt) return '';
+  const d = new Date(regDt);
+  if (isNaN(d.getTime())) return '';
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}.${mm}.${dd}`;
+}
+
+function isNew(regDt: string | null): boolean {
+  if (!regDt) return false;
+  const d = new Date(regDt);
+  if (isNaN(d.getTime())) return false;
+  const diffMs = Date.now() - d.getTime();
+  return diffMs < 7 * 24 * 60 * 60 * 1000;
+}
+
 export function NoticePage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedSeq, setExpandedSeq] = useState<string | null>(null);
+
+  useEffect(() => {
+    boardApi
+      .getNotices()
+      .then((res) => setNotices(res.notices))
+      .catch(() => setNotices([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const toggleExpand = (seq: string | null) => {
+    setExpandedSeq((prev) => (prev === seq ? null : seq));
   };
 
   return (
@@ -126,26 +147,68 @@ export function NoticePage() {
 
             {/* Notice List */}
             <div className="flex flex-col">
-              {NOTICE_LIST.map((notice) => (
-                <div
-                  key={notice.id}
-                  className="flex cursor-pointer items-start justify-between border-b border-slate-100 px-4 py-5 transition-colors last:border-b-0 hover:bg-slate-50 active:bg-slate-50"
-                >
-                  <div className="flex flex-col gap-1 pr-4">
-                    <div className="flex items-center gap-2">
-                      <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-seah-gray-500">
-                        {notice.title}
-                      </h3>
-                      {notice.isNew && (
-                        <span className="shrink-0 rounded-sm bg-seah-orange-500/10 px-1.5 py-0.5 text-[10px] font-bold text-seah-orange-500">
-                          NEW
-                        </span>
+              {loading && (
+                <div className="py-16 text-center text-sm text-slate-400">불러오는 중...</div>
+              )}
+
+              {!loading && notices.length === 0 && (
+                <div className="py-16 text-center text-sm text-slate-400">공지사항이 없습니다.</div>
+              )}
+
+              {!loading &&
+                notices.map((notice) => {
+                  const key = notice.boardSeq ?? notice.boardTitle ?? '';
+                  const expanded = expandedSeq === key;
+
+                  return (
+                    <div
+                      key={key}
+                      className="border-b border-slate-100 last:border-b-0"
+                    >
+                      {/* 제목 행 (클릭 시 내용 토글) */}
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(key)}
+                        className="flex w-full cursor-pointer items-start justify-between px-4 py-5 text-left transition-colors hover:bg-slate-50 active:bg-slate-50"
+                      >
+                        <div className="flex flex-col gap-1 pr-4">
+                          <div className="flex items-center gap-2">
+                            {notice.importYn === 'Y' && (
+                              <span className="shrink-0 rounded-sm bg-seah-orange-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                중요
+                              </span>
+                            )}
+                            <h3 className="text-[15px] font-bold leading-snug text-seah-gray-500">
+                              {notice.boardTitle ?? '(제목 없음)'}
+                            </h3>
+                            {isNew(notice.regDt) && (
+                              <span className="shrink-0 rounded-sm bg-seah-orange-500/10 px-1.5 py-0.5 text-[10px] font-bold text-seah-orange-500">
+                                NEW
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-slate-400">{formatDate(notice.regDt)}</span>
+                        </div>
+                        <ChevronDown
+                          size={18}
+                          className={[
+                            'mt-0.5 shrink-0 text-slate-400 transition-transform duration-200',
+                            expanded ? 'rotate-180' : '',
+                          ].join(' ')}
+                        />
+                      </button>
+
+                      {/* 내용 (아코디언) */}
+                      {expanded && (
+                        <div className="border-t border-slate-100 bg-slate-50 px-4 py-4">
+                          <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-600">
+                            {notice.boardTxt ?? '내용이 없습니다.'}
+                          </p>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  <span className="shrink-0 pt-1 text-xs text-slate-400">{notice.date}</span>
-                </div>
-              ))}
+                  );
+                })}
             </div>
           </div>
         </main>

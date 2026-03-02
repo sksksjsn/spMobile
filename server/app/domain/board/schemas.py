@@ -2,6 +2,7 @@
 Board 도메인 Pydantic 스키마
 """
 
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -26,3 +27,21 @@ class PopupNoticeListResponse(BaseModel):
     """팝업 공지사항 목록 응답"""
 
     notices: list[PopupNoticeSchema]
+
+
+class NoticeSchema(BaseModel):
+    """공지사항 목록 항목 응답 스키마"""
+
+    board_seq: Optional[str] = Field(None, alias="boardSeq", serialization_alias="boardSeq")
+    board_title: Optional[str] = Field(None, alias="boardTitle", serialization_alias="boardTitle")
+    board_txt: Optional[str] = Field(None, alias="boardTxt", serialization_alias="boardTxt")
+    import_yn: Optional[str] = Field(None, alias="importYn", serialization_alias="importYn")
+    reg_dt: Optional[datetime] = Field(None, alias="regDt", serialization_alias="regDt")
+
+    model_config = {"populate_by_name": True, "from_attributes": True}
+
+
+class NoticeListResponse(BaseModel):
+    """공지사항 목록 응답"""
+
+    notices: list[NoticeSchema]

@@ -42,3 +42,13 @@ class BoardRepository:
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_notices(self) -> list[WbBoardInfo]:
+        """
+        공지사항 전체 목록을 조회합니다.
+
+        정렬: REG_DT DESC (최신순)
+        """
+        stmt = select(WbBoardInfo).order_by(WbBoardInfo.reg_dt.desc())
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
