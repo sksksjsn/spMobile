@@ -4,6 +4,7 @@ import { useAuthStore } from './core/store/useAuthStore';
 import { LoginPage } from './domains/auth';
 import { HomePage } from './domains/home';
 import { NoticePage } from './domains/board';
+import { LogisticsListPage, LogisticsCompletedPage } from './domains/logistics';
 
 /** 인증된 사용자만 접근 가능한 라우트 보호 래퍼 */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -25,6 +26,22 @@ function App() {
           element={
             <ProtectedRoute>
               <NoticePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/logistics"
+          element={
+            <ProtectedRoute>
+              <LogisticsListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/logistics/completed"
+          element={
+            <ProtectedRoute>
+              <LogisticsCompletedPage />
             </ProtectedRoute>
           }
         />
