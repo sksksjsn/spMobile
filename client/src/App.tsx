@@ -8,6 +8,7 @@ import {
   LogisticsListPage,
   LogisticsCompletedPage,
   LogisticsExportRegisterPage,
+  ExportItemAddPage,
   SiteTransferRegisterPage,
 } from './domains/logistics';
 
@@ -55,6 +56,14 @@ function App() {
           element={
             <ProtectedRoute>
               <LogisticsExportRegisterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/logistics/register/export/item-add"
+          element={
+            <ProtectedRoute>
+              <ExportItemAddPage />
             </ProtectedRoute>
           }
         />
