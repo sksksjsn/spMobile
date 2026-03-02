@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
-  ArrowRight,
   Layers,
   LogOut,
   Plus,
@@ -52,7 +51,6 @@ export function LogisticsExportRegisterPage() {
 
   // 반출 사업장
   const [outSite, setOutSite] = useState(SITES[1]); // 포항
-  const [inSite, setInSite] = useState(SITES[0]); // 본사
 
   // 반출 일자
   const [exportDate, setExportDate] = useState(todayStr());
@@ -95,7 +93,6 @@ export function LogisticsExportRegisterPage() {
     if (!authorDept) return '작성 담당자 부서명을 선택해주세요.';
     if (!partnerCompany.trim()) return '협력업체를 입력해주세요.';
     if (!transportType) return '운송 유형을 선택해주세요.';
-    if (outSite === inSite) return '반출 사업장과 반입 사업장이 같을 수 없습니다.';
     for (const r of rows) {
       if (!r.name.trim()) return '자재명을 입력해주세요.';
       if (!r.quantity || isNaN(Number(r.quantity)) || Number(r.quantity) <= 0)
@@ -180,31 +177,17 @@ export function LogisticsExportRegisterPage() {
                 <label className="mb-1 block text-xs font-semibold text-slate-500">
                   반출 사업장 <span className="text-rose-500">*</span>
                 </label>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={outSite}
-                    onChange={(e) => setOutSite(e.target.value)}
-                    className={SELECT_CLS}
-                  >
-                    {SITES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                  <ArrowRight size={16} className="shrink-0 text-slate-400" />
-                  <select
-                    value={inSite}
-                    onChange={(e) => setInSite(e.target.value)}
-                    className={SELECT_CLS}
-                  >
-                    {SITES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={outSite}
+                  onChange={(e) => setOutSite(e.target.value)}
+                  className={SELECT_CLS}
+                >
+                  {SITES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* 반출 일자 */}
