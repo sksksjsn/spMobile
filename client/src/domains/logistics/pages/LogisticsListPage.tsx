@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 import type { LogisticsItem, LogisticsSearchParams } from '../types';
+import { useSitesDept } from '@/core/hooks/useSitesDept';
 
 // ─── Mock data (실제 API 연동 전 테스트용) ──────────────────────────
 const MOCK_ITEMS: LogisticsItem[] = [
@@ -84,15 +85,6 @@ const MOCK_ITEMS: LogisticsItem[] = [
     regDt: '2025-02-21T08:45:00',
   },
 ];
-
-const SITES = ['전체', '본사', '포항', '창원', '군산'];
-const DEPT_MAP: Record<string, string[]> = {
-  전체: ['전체'],
-  본사: ['전체', '자재팀(본사)', '경영팀(본사)'],
-  포항: ['전체', '설비팀(포항)', '생산팀(포항)', '품질팀(포항)'],
-  창원: ['전체', '생산팀(창원)', '설비팀(창원)'],
-  군산: ['전체', '품질팀(군산)', '생산팀(군산)'],
-};
 
 const SIDEBAR_NAV = [
   { icon: Home, label: '홈', active: false, path: '/' },
@@ -212,6 +204,7 @@ export function LogisticsListPage() {
   // FAB state
   const [fabOpen, setFabOpen] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
+  const { sites, getDeptsBySite } = useSitesDept();
 
   useEffect(() => {
     if (!fabOpen) return;
@@ -226,9 +219,9 @@ export function LogisticsListPage() {
 
   // Search state
   const [filterOpen, setFilterOpen] = useState(true);
-  const [outSite, setOutSite] = useState('전체');
-  const [outDept, setOutDept] = useState('전체');
-  const [inSite, setInSite] = useState('전체');
+  const [outSite, setOutSite] = useState('');
+  const [outDept, setOutDept] = useState('');
+  const [inSite, setInSite] = useState('');
   const [company, setCompany] = useState('');
   const [material, setMaterial] = useState('');
   const [dateQuick, setDateQuick] = useState<DateQuick>('전체');
@@ -247,9 +240,9 @@ export function LogisticsListPage() {
 
   function buildParams(): LogisticsSearchParams {
     return {
-      outSite: outSite !== '전체' ? outSite : undefined,
-      outDept: outDept !== '전체' ? outDept : undefined,
-      inSite: inSite !== '전체' ? inSite : undefined,
+      outSite: outSite || undefined,
+      outDept: outDept || undefined,
+      inSite: inSite || undefined,
       company: company || undefined,
       material: material || undefined,
       startDate: startDate || undefined,
@@ -275,9 +268,9 @@ export function LogisticsListPage() {
   }
 
   function handleReset() {
-    setOutSite('전체');
-    setOutDept('전체');
-    setInSite('전체');
+    setOutSite('');
+    setOutDept('');
+    setInSite('');
     setCompany('');
     setMaterial('');
     setDateQuick('전체');
@@ -299,15 +292,13 @@ export function LogisticsListPage() {
 
   function handleOutSiteChange(val: string) {
     setOutSite(val);
-    setOutDept('전체');
+    setOutDept('');
   }
 
   async function handleLogout() {
     await logout();
     navigate('/login');
   }
-
-  const deptOptions = DEPT_MAP[outSite] ?? ['전체'];
 
   return (
     <div className="relative min-h-dvh bg-[#F8F9FA]">
@@ -433,9 +424,10 @@ export function LogisticsListPage() {
                       onChange={(e) => handleOutSiteChange(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {SITES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
+                      <option value="">전체</option>
+                      {sites.map((s) => (
+                        <option key={s.busiPlace} value={s.busiPlace}>
+                          {s.busiPlaceName}
                         </option>
                       ))}
                     </select>
@@ -451,9 +443,10 @@ export function LogisticsListPage() {
                       onChange={(e) => setOutDept(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {deptOptions.map((d) => (
-                        <option key={d} value={d}>
-                          {d}
+                      <option value="">전체</option>
+                      {getDeptsBySite(outSite).map((d) => (
+                        <option key={d.deptCode} value={d.deptCode}>
+                          {d.deptName}
                         </option>
                       ))}
                     </select>
@@ -469,9 +462,10 @@ export function LogisticsListPage() {
                       onChange={(e) => setInSite(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {SITES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
+                      <option value="">전체</option>
+                      {sites.map((s) => (
+                        <option key={s.busiPlace} value={s.busiPlace}>
+                          {s.busiPlaceName}
                         </option>
                       ))}
                     </select>

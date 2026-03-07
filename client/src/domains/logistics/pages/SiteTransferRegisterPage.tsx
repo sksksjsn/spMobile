@@ -10,14 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
-
-const SITES = ['본사', '포항', '창원', '군산'];
-const DEPT_MAP: Record<string, string[]> = {
-  본사: ['자재팀(본사)', '경영팀(본사)'],
-  포항: ['설비팀(포항)', '생산팀(포항)', '품질팀(포항)'],
-  창원: ['생산팀(창원)', '설비팀(창원)'],
-  군산: ['품질팀(군산)', '생산팀(군산)'],
-};
+import { useSitesDept } from '@/core/hooks/useSitesDept';
 
 interface MaterialRow {
   id: number;
@@ -35,11 +28,12 @@ function newRow(): MaterialRow {
 export function SiteTransferRegisterPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { sites, getDeptsBySite, loading: sitesLoading } = useSitesDept();
 
-  const [fromSite, setFromSite] = useState(SITES[0]);
-  const [fromDept, setFromDept] = useState(DEPT_MAP[SITES[0]][0]);
-  const [toSite, setToSite] = useState(SITES[1]);
-  const [toDept, setToDept] = useState(DEPT_MAP[SITES[1]][0]);
+  const [fromSite, setFromSite] = useState('');
+  const [fromDept, setFromDept] = useState('');
+  const [toSite, setToSite] = useState('');
+  const [toDept, setToDept] = useState('');
   const [manager, setManager] = useState('');
   const [transferDate, setTransferDate] = useState('');
   const [remark, setRemark] = useState('');
@@ -48,12 +42,14 @@ export function SiteTransferRegisterPage() {
 
   function handleFromSiteChange(val: string) {
     setFromSite(val);
-    setFromDept(DEPT_MAP[val][0]);
+    const depts = getDeptsBySite(val);
+    setFromDept(depts[0]?.deptCode ?? '');
   }
 
   function handleToSiteChange(val: string) {
     setToSite(val);
-    setToDept(DEPT_MAP[val][0]);
+    const depts = getDeptsBySite(val);
+    setToDept(depts[0]?.deptCode ?? '');
   }
 
   function addRow() {
@@ -144,6 +140,11 @@ export function SiteTransferRegisterPage() {
           <h1 className="text-lg font-bold text-seah-gray-500">사업장이동 등록</h1>
         </div>
 
+        {sitesLoading && (
+          <div className="py-10 text-center text-sm text-slate-400">사업장/부서 데이터 로딩 중...</div>
+        )}
+
+        {!sitesLoading && (
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* ── 이동 정보 ──────────────────────────────────── */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -163,9 +164,10 @@ export function SiteTransferRegisterPage() {
                       onChange={(e) => handleFromSiteChange(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {SITES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
+                      <option value="">사업장 선택</option>
+                      {sites.map((s) => (
+                        <option key={s.busiPlace} value={s.busiPlace}>
+                          {s.busiPlaceName}
                         </option>
                       ))}
                     </select>
@@ -179,9 +181,10 @@ export function SiteTransferRegisterPage() {
                       onChange={(e) => setFromDept(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {(DEPT_MAP[fromSite] ?? []).map((d) => (
-                        <option key={d} value={d}>
-                          {d}
+                      <option value="">부서 선택</option>
+                      {getDeptsBySite(fromSite).map((d) => (
+                        <option key={d.deptCode} value={d.deptCode}>
+                          {d.deptName}
                         </option>
                       ))}
                     </select>
@@ -202,9 +205,10 @@ export function SiteTransferRegisterPage() {
                       onChange={(e) => handleToSiteChange(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {SITES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
+                      <option value="">사업장 선택</option>
+                      {sites.map((s) => (
+                        <option key={s.busiPlace} value={s.busiPlace}>
+                          {s.busiPlaceName}
                         </option>
                       ))}
                     </select>
@@ -218,9 +222,10 @@ export function SiteTransferRegisterPage() {
                       onChange={(e) => setToDept(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {(DEPT_MAP[toSite] ?? []).map((d) => (
-                        <option key={d} value={d}>
-                          {d}
+                      <option value="">부서 선택</option>
+                      {getDeptsBySite(toSite).map((d) => (
+                        <option key={d.deptCode} value={d.deptCode}>
+                          {d.deptName}
                         </option>
                       ))}
                     </select>
@@ -369,6 +374,7 @@ export function SiteTransferRegisterPage() {
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

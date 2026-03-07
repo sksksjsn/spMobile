@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 import type { LogisticsItem, LogisticsSearchParams } from '../types';
+import { useSitesDept } from '@/core/hooks/useSitesDept';
 
 // ─── Mock data ───────────────────────────────────────────────────
 const MOCK_COMPLETED: LogisticsItem[] = [
@@ -68,7 +69,6 @@ const MOCK_COMPLETED: LogisticsItem[] = [
   },
 ];
 
-const SITES = ['전체', '본사', '포항', '창원', '군산'];
 const DATE_QUICK = ['전체', '1일', '1주', '1개월', '1년'] as const;
 type DateQuick = (typeof DATE_QUICK)[number];
 
@@ -184,10 +184,11 @@ function CompletedCard({ item }: { item: LogisticsItem }) {
 export function LogisticsCompletedPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { sites } = useSitesDept();
 
   const [filterOpen, setFilterOpen] = useState(true);
-  const [outSite, setOutSite] = useState('전체');
-  const [inSite, setInSite] = useState('전체');
+  const [outSite, setOutSite] = useState('');
+  const [inSite, setInSite] = useState('');
   const [company, setCompany] = useState('');
   const [material, setMaterial] = useState('');
   const [dateQuick, setDateQuick] = useState<DateQuick>('전체');
@@ -203,8 +204,8 @@ export function LogisticsCompletedPage() {
 
   function buildParams(): LogisticsSearchParams {
     return {
-      outSite: outSite !== '전체' ? outSite : undefined,
-      inSite: inSite !== '전체' ? inSite : undefined,
+      outSite: outSite || undefined,
+      inSite: inSite || undefined,
       company: company || undefined,
       material: material || undefined,
       startDate: startDate || undefined,
@@ -229,8 +230,8 @@ export function LogisticsCompletedPage() {
   }
 
   function handleReset() {
-    setOutSite('전체');
-    setInSite('전체');
+    setOutSite('');
+    setInSite('');
     setCompany('');
     setMaterial('');
     setDateQuick('전체');
@@ -378,9 +379,10 @@ export function LogisticsCompletedPage() {
                       onChange={(e) => setOutSite(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {SITES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
+                      <option value="">전체</option>
+                      {sites.map((s) => (
+                        <option key={s.busiPlace} value={s.busiPlace}>
+                          {s.busiPlaceName}
                         </option>
                       ))}
                     </select>
@@ -394,9 +396,10 @@ export function LogisticsCompletedPage() {
                       onChange={(e) => setInSite(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                     >
-                      {SITES.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
+                      <option value="">전체</option>
+                      {sites.map((s) => (
+                        <option key={s.busiPlace} value={s.busiPlace}>
+                          {s.busiPlaceName}
                         </option>
                       ))}
                     </select>

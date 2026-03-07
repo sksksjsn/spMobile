@@ -13,15 +13,9 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 import { useExportDraftStore } from '../store/useExportDraftStore';
+import { useSitesDept } from '@/core/hooks/useSitesDept';
 
-const SITES = ['본사', '포항', '창원', '군산'];
-const DEPT_MAP: Record<string, string[]> = {
-  본사: ['자재팀(본사)', '경영팀(본사)'],
-  포항: ['설비팀(포항)', '생산팀(포항)', '품질팀(포항)'],
-  창원: ['생산팀(창원)', '설비팀(창원)'],
-  군산: ['품질팀(군산)', '생산팀(군산)'],
-};
-const ALL_DEPTS = Object.values(DEPT_MAP).flat();
+
 const TRANSPORT_TYPES = ['자가운반', '택배', '화물차량', '용달', '기타'];
 
 const INPUT_CLS =
@@ -60,6 +54,7 @@ export function LogisticsExportRegisterPage() {
     setEditingIndex,
     clearDraft,
   } = useExportDraftStore();
+  const { sites, depts } = useSitesDept();
 
   // 최초 진입 시 담당자명 초기화
   useEffect(() => {
@@ -172,9 +167,10 @@ export function LogisticsExportRegisterPage() {
                   onChange={(e) => setField('outSite', e.target.value)}
                   className={SELECT_CLS}
                 >
-                  {SITES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
+                  <option value="">사업장 선택</option>
+                  {sites.map((s) => (
+                    <option key={s.busiPlace} value={s.busiPlace}>
+                      {s.busiPlaceName}
                     </option>
                   ))}
                 </select>
@@ -218,9 +214,9 @@ export function LogisticsExportRegisterPage() {
                   className={SELECT_CLS}
                 >
                   <option value="">부서를 선택해주세요</option>
-                  {ALL_DEPTS.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
+                  {depts.map((d) => (
+                    <option key={d.deptCode} value={d.deptCode}>
+                      {d.deptName}
                     </option>
                   ))}
                 </select>
