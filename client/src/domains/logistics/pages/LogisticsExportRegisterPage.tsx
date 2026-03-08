@@ -15,6 +15,7 @@ import { useAuthStore } from '@/core/store/useAuthStore';
 import { useExportDraftStore } from '../store/useExportDraftStore';
 import { useSitesDept } from '@/core/hooks/useSitesDept';
 import { useTransportTypes } from '@/core/hooks/useTransportTypes';
+import { useUnits } from '@/core/hooks/useUnits';
 
 const INPUT_CLS =
   'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 ' +
@@ -46,6 +47,13 @@ export function LogisticsExportRegisterPage() {
     receiverPhone2,
     receiverPhone3,
     transportType,
+    driverName,
+    driverPhone1,
+    driverPhone2,
+    driverPhone3,
+    driverVehicleNo,
+    courierName,
+    courierInvoiceNo,
     items,
     setField,
     removeItem,
@@ -54,6 +62,10 @@ export function LogisticsExportRegisterPage() {
   } = useExportDraftStore();
   const { sites, getDeptsBySite } = useSitesDept();
   const { transportTypes } = useTransportTypes();
+  const { units } = useUnits();
+
+  // 단위 코드 → 명칭 맵
+  const unitMap = Object.fromEntries(units.map((u) => [u.unitCode, u.unitName]));
 
   // 사업장에 해당하는 부서 목록
   const filteredDepts = outSite ? getDeptsBySite(outSite) : [];
@@ -80,6 +92,15 @@ export function LogisticsExportRegisterPage() {
     if (!authorDept) return '작성 담당자 부서명을 선택해주세요.';
     if (!partnerCompany.trim()) return '협력업체를 입력해주세요.';
     if (!transportType) return '운송 유형을 선택해주세요.';
+    if (transportType === '01') {
+      if (!driverName.trim()) return '직납 운전자 성명을 입력해주세요.';
+      if (!driverPhone2 || !driverPhone3) return '직납 운전자 연락처를 입력해주세요.';
+      if (!driverVehicleNo.trim()) return '직납 운전자 차량번호를 입력해주세요.';
+    }
+    if (transportType === '02') {
+      if (!courierName.trim()) return '택배사명을 입력해주세요.';
+      if (!courierInvoiceNo.trim()) return '송장번호를 입력해주세요.';
+    }
     if (items.length === 0) return '물품을 최소 1개 추가해주세요.';
     return null;
   }
@@ -356,7 +377,22 @@ export function LogisticsExportRegisterPage() {
                 </label>
                 <select
                   value={transportType}
-                  onChange={(e) => setField('transportType', e.target.value)}
+                  onChange={(e) => {
+                    setField('transportType', e.target.value);
+                    // 직납이 아닌 경우 운전자 정보 초기화
+                    if (e.target.value !== '01') {
+                      setField('driverName', '');
+                      setField('driverPhone1', '010');
+                      setField('driverPhone2', '');
+                      setField('driverPhone3', '');
+                      setField('driverVehicleNo', '');
+                    }
+                    // 택배가 아닌 경우 택배 정보 초기화
+                    if (e.target.value !== '02') {
+                      setField('courierName', '');
+                      setField('courierInvoiceNo', '');
+                    }
+                  }}
                   className={SELECT_CLS}
                 >
                   <option value="">선택해주세요</option>
@@ -369,6 +405,123 @@ export function LogisticsExportRegisterPage() {
               </div>
             </div>
           </div>
+
+          {/* ── 직납 운전자 정보 ───────────────────────────── */}
+          {transportType === '01' && (
+            <div className="rounded-xl border border-blue-100 bg-blue-50 p-5 shadow-sm">
+              <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-blue-700">
+                <Truck size={15} />
+                직납 운전자 정보
+              </h2>
+              <div className="space-y-4">
+                {/* 운전자 성명 */}
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-500">
+                    운전자 성명 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="운전자 성명 입력"
+                    value={driverName}
+                    onChange={(e) => setField('driverName', e.target.value)}
+                    className={INPUT_CLS}
+                  />
+                </div>
+
+                {/* 운전자 연락처 */}
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-500">
+                    운전자 연락처 <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-[2.8rem_auto_1fr_auto_1fr] items-center gap-x-1">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={3}
+                      placeholder="010"
+                      value={driverPhone1}
+                      onChange={(e) => setField('driverPhone1', e.target.value.replace(/\D/g, ''))}
+                      className={`min-w-0 ${PHONE_CLS}`}
+                    />
+                    <span className="text-center text-slate-400">-</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={4}
+                      placeholder="0000"
+                      value={driverPhone2}
+                      onChange={(e) => setField('driverPhone2', e.target.value.replace(/\D/g, ''))}
+                      className={`min-w-0 w-full ${PHONE_CLS}`}
+                    />
+                    <span className="text-center text-slate-400">-</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={4}
+                      placeholder="0000"
+                      value={driverPhone3}
+                      onChange={(e) => setField('driverPhone3', e.target.value.replace(/\D/g, ''))}
+                      className={`min-w-0 w-full ${PHONE_CLS}`}
+                    />
+                  </div>
+                </div>
+
+                {/* 운전자 차량번호 */}
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-500">
+                    운전자 차량번호 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="예) 12가 3456"
+                    value={driverVehicleNo}
+                    onChange={(e) => setField('driverVehicleNo', e.target.value)}
+                    className={INPUT_CLS}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── 택배 정보 ──────────────────────────────── */}
+          {transportType === '02' && (
+            <div className="rounded-xl border border-violet-100 bg-violet-50 p-5 shadow-sm">
+              <h2 className="mb-4 flex items-center gap-2 text-sm font-bold text-violet-700">
+                <Package size={15} />
+                택배 정보
+              </h2>
+              <div className="space-y-4">
+                {/* 택배사명 */}
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-500">
+                    택배사명 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="택배사명 입력 (예: CJ대한, 한진, 로지스)"
+                    value={courierName}
+                    onChange={(e) => setField('courierName', e.target.value)}
+                    className={INPUT_CLS}
+                  />
+                </div>
+
+                {/* 송장번호 */}
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-500">
+                    송장번호 <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="송장번호 입력"
+                    value={courierInvoiceNo}
+                    onChange={(e) => setField('courierInvoiceNo', e.target.value)}
+                    className={INPUT_CLS}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── 물품 목록 ──────────────────────────────────── */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -422,7 +575,7 @@ export function LogisticsExportRegisterPage() {
                         {item.spec && <span>규격: {item.spec}</span>}
                         {item.maker && <span>메이커: {item.maker}</span>}
                         <span>
-                          {item.quantity} {item.unit}
+                          {item.quantity} {unitMap[item.unit] ?? item.unit}
                         </span>
                       </div>
                     </div>

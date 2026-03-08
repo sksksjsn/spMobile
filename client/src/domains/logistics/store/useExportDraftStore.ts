@@ -28,6 +28,17 @@ interface ExportDraftState {
   receiverPhone3: string;
   transportType: string;
 
+  // 직납 운전자 정보
+  driverName: string;
+  driverPhone1: string;
+  driverPhone2: string;
+  driverPhone3: string;
+  driverVehicleNo: string;
+
+  // 택배 정보
+  courierName: string;
+  courierInvoiceNo: string;
+
   // 물품 목록
   items: ExportItem[];
   editingIndex: number | null;
@@ -63,6 +74,18 @@ export const useExportDraftStore = create<ExportDraftState>((set) => ({
   receiverPhone2: '',
   receiverPhone3: '',
   transportType: '',
+
+  // 직납 운전자 정보
+  driverName: '',
+  driverPhone1: '010',
+  driverPhone2: '',
+  driverPhone3: '',
+  driverVehicleNo: '',
+
+  // 택배 정보
+  courierName: '',
+  courierInvoiceNo: '',
+
   items: [],
   editingIndex: null,
 
@@ -100,6 +123,13 @@ export const useExportDraftStore = create<ExportDraftState>((set) => ({
       receiverPhone2: '',
       receiverPhone3: '',
       transportType: '',
+      driverName: '',
+      driverPhone1: '010',
+      driverPhone2: '',
+      driverPhone3: '',
+      driverVehicleNo: '',
+      courierName: '',
+      courierInvoiceNo: '',
       items: [],
       editingIndex: null,
     }),

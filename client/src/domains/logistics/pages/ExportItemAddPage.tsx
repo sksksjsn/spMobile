@@ -36,6 +36,8 @@ export function ExportItemAddPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  // 마운트 시점의 editingIndex를 고정 (cleanup 실행 전에 값 보존)
+  const editingIndexRef = useRef(editingIndex);
 
   useEffect(() => {
     return () => {
@@ -85,8 +87,8 @@ export function ExportItemAddPage() {
 
     const itemData = { name, spec, unit, maker, quantity, reason, note, photos };
 
-    if (isEdit) {
-      updateItem(editingIndex, itemData);
+    if (editingIndexRef.current !== null) {
+      updateItem(editingIndexRef.current, itemData);
     } else {
       addItem(itemData);
     }
