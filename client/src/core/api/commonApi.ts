@@ -35,6 +35,8 @@ export interface UnitsResponse {
 }
 
 export async function fetchUnits(): Promise<UnitsResponse> {
-  const response = await apiClient.get<UnitsResponse>('/v1/common/units');
+  const response = await apiClient.get<UnitsResponse>('/v1/common/units', {
+    skipLoading: true,
+  } as any);
   return response.data;
 }

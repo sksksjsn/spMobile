@@ -19,7 +19,7 @@ const LABEL_CLS = 'mb-1 block text-xs font-semibold text-slate-500';
 export function ExportItemAddPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const { units } = useUnits();
+  const { units, loading: unitsLoading, error: unitsError } = useUnits();
   const { items, editingIndex, addItem, updateItem, setEditingIndex } = useExportDraftStore();
 
   const isEdit = editingIndex !== null;
@@ -187,15 +187,21 @@ export function ExportItemAddPage() {
                   <select
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
+                    disabled={unitsLoading}
                     className={SELECT_CLS}
                   >
-                    <option value="">단위 선택</option>
+                    <option value="">
+                      {unitsLoading ? '로딩 중...' : unitsError ? '로드 실패' : '단위 선택'}
+                    </option>
                     {units.map((u) => (
                       <option key={u.unitCode} value={u.unitCode}>
                         {u.unitName}
                       </option>
                     ))}
                   </select>
+                  {unitsError && (
+                    <p className="mt-1 text-xs text-rose-500">{unitsError}</p>
+                  )}
                 </div>
                 <div>
                   <label className={LABEL_CLS}>메이커</label>
