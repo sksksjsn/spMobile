@@ -50,7 +50,7 @@ function todayStr(): string {
 }
 
 export const useExportDraftStore = create<ExportDraftState>((set) => ({
-  outSite: '포항',
+  outSite: '',
   exportDate: todayStr(),
   authorName: '',
   authorDept: '',
@@ -87,7 +87,7 @@ export const useExportDraftStore = create<ExportDraftState>((set) => ({
 
   clearDraft: () =>
     set({
-      outSite: '포항',
+      outSite: '',
       exportDate: todayStr(),
       authorName: '',
       authorDept: '',
