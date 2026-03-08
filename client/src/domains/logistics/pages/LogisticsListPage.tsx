@@ -83,10 +83,12 @@ function StatusBadge({ status }: { status: '반입' | '반출' }) {
 
 function LogisticsCard({
   item,
+  siteMap,
   deptMap,
   unitMap,
 }: {
   item: LogisticsItem;
+  siteMap: Record<string, string>;
   deptMap: Record<string, string>;
   unitMap: Record<string, string>;
 }) {
@@ -102,7 +104,7 @@ function LogisticsCard({
 
       {/* Site row */}
       <div className="mb-2 flex items-center gap-1.5 text-sm text-slate-600">
-        <span className="font-medium">{item.outSiteName || item.outSite}</span>
+        <span className="font-medium">{siteMap[item.outSite] ?? (item.outSiteName || item.outSite)}</span>
       </div>
 
       {/* Dept / Manager */}
@@ -158,6 +160,7 @@ export function LogisticsListPage() {
   const fabRef = useRef<HTMLDivElement>(null);
   const { sites, depts, getDeptsBySite } = useSitesDept();
   const { units } = useUnits();
+  const siteMap = Object.fromEntries(sites.map((s) => [s.busiPlace, s.busiPlaceName]));
   const deptMap = Object.fromEntries(depts.map((d) => [d.deptCode, d.deptName]));
   const unitMap = Object.fromEntries(units.map((u) => [u.unitCode, u.unitName]));
 
@@ -549,7 +552,7 @@ export function LogisticsListPage() {
           {!loading && !error && (
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {items.map((item) => (
-                <LogisticsCard key={item.docNo} item={item} deptMap={deptMap} unitMap={unitMap} />
+                <LogisticsCard key={item.docNo} item={item} siteMap={siteMap} deptMap={deptMap} unitMap={unitMap} />
               ))}
             </div>
           )}
