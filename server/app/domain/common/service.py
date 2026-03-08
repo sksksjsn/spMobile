@@ -1,6 +1,6 @@
 """
 Common Service
-사업장 + 부서 데이터 제공
+사업장 + 부서 + 단위 데이터 제공
 """
 
 import logging
@@ -8,7 +8,7 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.app.domain.common.repositories.common_repository import CommonRepository
-from server.app.domain.common.schemas import DeptSchema, SiteSchema, SitesDeptResponse
+from server.app.domain.common.schemas import DeptSchema, SiteSchema, SitesDeptResponse, UnitSchema, UnitsResponse
 
 logger = logging.getLogger(__name__)
 
@@ -45,3 +45,21 @@ class CommonService:
 
         logger.info(f"sites={len(sites)}, depts={len(depts)} 조회 완료")
         return SitesDeptResponse(sites=sites, depts=depts)
+
+    async def get_units(self) -> UnitsResponse:
+        """
+        단위 목록을 반환합니다.
+        CM_CodeDetail.CODE_TYPE = 'MT35'
+        """
+        units_rows = await self.common_repo.get_units()
+
+        units = [
+            UnitSchema(
+                unit_code=row.code,
+                unit_name=row.code_name or row.code,
+            )
+            for row in units_rows
+        ]
+
+        logger.info(f"units={len(units)} 조회 완료")
+        return UnitsResponse(units=units)
