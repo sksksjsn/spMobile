@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -8,8 +8,11 @@ import {
   Layers,
   LogOut,
   Megaphone,
+  MoreVertical,
   Package,
   PenLine,
+  Pencil,
+  Trash2,
   Truck,
   XCircle,
 } from 'lucide-react';
@@ -209,6 +212,8 @@ export function LogisticsDetailPage() {
   const [detail, setDetail] = useState<LogisticsDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!docNo) return;
@@ -221,9 +226,29 @@ export function LogisticsDetailPage() {
       .finally(() => setLoading(false));
   }, [docNo]);
 
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, [menuOpen]);
+
   async function handleLogout() {
     await logout();
     navigate('/login');
+  }
+
+  function handleEdit() {
+    setMenuOpen(false);
+    // TODO: 수정 페이지 이동 또는 수정 모드 진입
+  }
+
+  function handleDelete() {
+    setMenuOpen(false);
+    // TODO: 삭제 확인 다이얼로그 표시
   }
 
   // 운송유형 레이블
@@ -309,6 +334,40 @@ export function LogisticsDetailPage() {
             </button>
             <Truck size={20} className="text-seah-orange-500" />
             <h1 className="text-lg font-bold text-seah-gray-500">반출증 상세보기</h1>
+
+            {/* 점세개 메뉴 */}
+            <div className="relative ml-auto" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="flex size-8 items-center justify-center rounded-lg text-seah-gray-500 transition-colors hover:bg-slate-200"
+                aria-label="더보기 메뉴"
+              >
+                <MoreVertical size={18} />
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1 w-36 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+                  <button
+                    type="button"
+                    onClick={handleEdit}
+                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-medium text-seah-gray-500 transition-colors hover:bg-slate-50"
+                  >
+                    <Pencil size={15} className="text-seah-orange-500" />
+                    수정하기
+                  </button>
+                  <div className="mx-3 border-t border-slate-100" />
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="flex w-full items-center gap-2.5 px-4 py-3 text-sm font-medium text-rose-500 transition-colors hover:bg-rose-50"
+                  >
+                    <Trash2 size={15} />
+                    삭제하기
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* ── Loading / Error ─────────────────────────────── */}
