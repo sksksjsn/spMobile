@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -16,6 +16,8 @@ import { useExportDraftStore } from '../store/useExportDraftStore';
 import { useSitesDept } from '@/core/hooks/useSitesDept';
 import { useTransportTypes } from '@/core/hooks/useTransportTypes';
 import { useUnits } from '@/core/hooks/useUnits';
+import { logisticsApi } from '../api';
+import type { LogisticsCreateRequest } from '../types';
 
 const INPUT_CLS =
   'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 ' +
@@ -105,6 +107,8 @@ export function LogisticsExportRegisterPage() {
     return null;
   }
 
+  const [submitting, setSubmitting] = useState(false);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const err = validate();
@@ -112,11 +116,58 @@ export function LogisticsExportRegisterPage() {
       alert(err);
       return;
     }
-    // TODO: 실제 API 연동
-    await new Promise((r) => setTimeout(r, 600));
-    clearDraft();
-    alert('반출 등록이 완료되었습니다.');
-    navigate('/logistics');
+
+    setSubmitting(true);
+    try {
+      const authorPhone =
+        authorPhone2 && authorPhone3
+          ? `${authorPhone1}-${authorPhone2}-${authorPhone3}`
+          : undefined;
+      const receiverPhone =
+        receiverPhone2 && receiverPhone3
+          ? `${receiverPhone1}-${receiverPhone2}-${receiverPhone3}`
+          : undefined;
+      const driverPhoneVal =
+        driverPhone2 && driverPhone3
+          ? `${driverPhone1}-${driverPhone2}-${driverPhone3}`
+          : undefined;
+
+      const req: LogisticsCreateRequest = {
+        busiPlace: outSite,
+        exportDate,
+        authorName,
+        authorDept,
+        authorPhone,
+        partnerCompany,
+        receiverName: receiverName || undefined,
+        receiverPhone,
+        transportType,
+        driverName: transportType === '01' ? driverName || undefined : undefined,
+        driverPhone: transportType === '01' ? driverPhoneVal : undefined,
+        driverVehicleNo: transportType === '01' ? driverVehicleNo || undefined : undefined,
+        courierName: transportType === '02' ? courierName || undefined : undefined,
+        courierInvoiceNo: transportType === '02' ? courierInvoiceNo || undefined : undefined,
+        items: items.map((item) => ({
+          itemName: item.name,
+          itemSpec: item.spec || undefined,
+          unitCode: item.unit || undefined,
+          maker: item.maker || undefined,
+          quantity: item.quantity ? Number(item.quantity) : undefined,
+          reason: item.reason || undefined,
+          note: item.note || undefined,
+          photos: item.photos,
+        })),
+      };
+
+      const res = await logisticsApi.create(req);
+      clearDraft();
+      alert(`반출 등록이 완료되었습니다.\n반출입번호: ${res.docNo}`);
+      navigate('/logistics');
+    } catch {
+      alert('반출 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleCancel() {
@@ -623,10 +674,11 @@ export function LogisticsExportRegisterPage() {
             </button>
             <button
               type="submit"
+              disabled={submitting}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-seah-orange-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-seah-orange-600 disabled:opacity-60"
             >
               <Save size={16} />
-              반출 등록
+              {submitting ? '등록 중...' : '반출 등록'}
             </button>
           </div>
         </form>
