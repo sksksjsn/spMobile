@@ -22,6 +22,7 @@ import { useAuthStore } from '@/core/store/useAuthStore';
 import type { LogisticsItem, LogisticsSearchParams } from '../types';
 import { logisticsApi } from '../api';
 import { useSitesDept } from '@/core/hooks/useSitesDept';
+import { useUnits } from '@/core/hooks/useUnits';
 
 const SIDEBAR_NAV = [
   { icon: Home, label: '홈', active: false, path: '/' },
@@ -80,7 +81,15 @@ function StatusBadge({ status }: { status: '반입' | '반출' }) {
   );
 }
 
-function LogisticsCard({ item }: { item: LogisticsItem }) {
+function LogisticsCard({
+  item,
+  deptMap,
+  unitMap,
+}: {
+  item: LogisticsItem;
+  deptMap: Record<string, string>;
+  unitMap: Record<string, string>;
+}) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:bg-slate-50">
       {/* Top row: docNo + status */}
@@ -98,7 +107,7 @@ function LogisticsCard({ item }: { item: LogisticsItem }) {
 
       {/* Dept / Manager */}
       <div className="mb-2 text-xs text-slate-500">
-        {item.department}
+        {(item.department && (deptMap[item.department] ?? item.department)) || ''}
         {item.manager && ` / ${item.manager}`}
       </div>
 
@@ -114,7 +123,7 @@ function LogisticsCard({ item }: { item: LogisticsItem }) {
           {item.quantity != null && (
             <span className="font-normal text-slate-500">
               {item.quantity}
-              {item.unit ?? ''}
+              {item.unit ? (unitMap[item.unit] ?? item.unit) : ''}
             </span>
           )}
         </div>
@@ -147,7 +156,10 @@ export function LogisticsListPage() {
   // FAB state
   const [fabOpen, setFabOpen] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
-  const { sites, getDeptsBySite } = useSitesDept();
+  const { sites, depts, getDeptsBySite } = useSitesDept();
+  const { units } = useUnits();
+  const deptMap = Object.fromEntries(depts.map((d) => [d.deptCode, d.deptName]));
+  const unitMap = Object.fromEntries(units.map((u) => [u.unitCode, u.unitName]));
 
   useEffect(() => {
     if (!fabOpen) return;
@@ -537,7 +549,7 @@ export function LogisticsListPage() {
           {!loading && !error && (
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {items.map((item) => (
-                <LogisticsCard key={item.docNo} item={item} />
+                <LogisticsCard key={item.docNo} item={item} deptMap={deptMap} unitMap={unitMap} />
               ))}
             </div>
           )}
