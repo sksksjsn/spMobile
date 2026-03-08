@@ -8,3 +8,4 @@ export { useApi } from './useApi';
 export { useDebounce } from './useDebounce';
 export { useSitesDept } from './useSitesDept';
 export { useUnits } from './useUnits';
+export { useTransportTypes } from './useTransportTypes';
