@@ -10,6 +10,7 @@ import {
   LogisticsExportRegisterPage,
   ExportItemAddPage,
   SiteTransferRegisterPage,
+  LogisticsDetailPage,
 } from './domains/logistics';
 
 /** 인증된 사용자만 접근 가능한 라우트 보호 래퍼 */
@@ -48,6 +49,14 @@ function App() {
           element={
             <ProtectedRoute>
               <LogisticsCompletedPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/logistics/:docNo"
+          element={
+            <ProtectedRoute>
+              <LogisticsDetailPage />
             </ProtectedRoute>
           }
         />
