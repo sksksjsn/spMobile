@@ -1,6 +1,6 @@
 """
 Common Service
-사업장 + 부서 + 단위 데이터 제공
+사업장 + 부서 + 단위 + 운송유형 데이터 제공
 """
 
 import logging
@@ -8,7 +8,15 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from server.app.domain.common.repositories.common_repository import CommonRepository
-from server.app.domain.common.schemas import DeptSchema, SiteSchema, SitesDeptResponse, UnitSchema, UnitsResponse
+from server.app.domain.common.schemas import (
+    DeptSchema,
+    SiteSchema,
+    SitesDeptResponse,
+    TransportTypeSchema,
+    TransportTypesResponse,
+    UnitSchema,
+    UnitsResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -61,3 +69,20 @@ class CommonService:
         ]
 
         return UnitsResponse(units=units)
+
+    async def get_transport_types(self) -> TransportTypesResponse:
+        """
+        운송 유형 목록을 반환합니다.
+        CM_CodeDetail.CODE_TYPE = 'MT16', USE_YN = 'Y'
+        """
+        rows = await self.common_repo.get_transport_types()
+
+        transport_types = [
+            TransportTypeSchema(
+                tran_code=row.code,
+                tran_name=row.code_name or row.code,
+            )
+            for row in rows
+        ]
+
+        return TransportTypesResponse(transport_types=transport_types)

@@ -1,6 +1,6 @@
 """
 Common 도메인 스키마
-사업장, 부서, 단위 응답 모델
+사업장, 부서, 단위, 운송유형 응답 모델
 """
 
 from pydantic import BaseModel, Field
@@ -45,3 +45,20 @@ class UnitsResponse(BaseModel):
     """단위 목록 응답"""
 
     units: list[UnitSchema]
+
+
+class TransportTypeSchema(BaseModel):
+    """운송 유형 정보"""
+
+    tran_code: str = Field(alias="tranCode", description="운송 유형 코드")
+    tran_name: str = Field(alias="tranName", description="운송 유형명")
+
+    model_config = {"populate_by_name": True}
+
+
+class TransportTypesResponse(BaseModel):
+    """운송 유형 목록 응답"""
+
+    transport_types: list[TransportTypeSchema] = Field(alias="transportTypes")
+
+    model_config = {"populate_by_name": True}

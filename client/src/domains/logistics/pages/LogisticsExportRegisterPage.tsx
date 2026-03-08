@@ -14,9 +14,7 @@ import {
 import { useAuthStore } from '@/core/store/useAuthStore';
 import { useExportDraftStore } from '../store/useExportDraftStore';
 import { useSitesDept } from '@/core/hooks/useSitesDept';
-
-
-const TRANSPORT_TYPES = ['자가운반', '택배', '화물차량', '용달', '기타'];
+import { useTransportTypes } from '@/core/hooks/useTransportTypes';
 
 const INPUT_CLS =
   'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 ' +
@@ -55,6 +53,7 @@ export function LogisticsExportRegisterPage() {
     clearDraft,
   } = useExportDraftStore();
   const { sites, getDeptsBySite } = useSitesDept();
+  const { transportTypes } = useTransportTypes();
 
   // 사업장에 해당하는 부서 목록
   const filteredDepts = outSite ? getDeptsBySite(outSite) : [];
@@ -361,9 +360,9 @@ export function LogisticsExportRegisterPage() {
                   className={SELECT_CLS}
                 >
                   <option value="">선택해주세요</option>
-                  {TRANSPORT_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
+                  {transportTypes.map((t) => (
+                    <option key={t.tranCode} value={t.tranCode}>
+                      {t.tranName}
                     </option>
                   ))}
                 </select>
