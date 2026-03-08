@@ -70,24 +70,9 @@ function SignatureCard({
   );
 }
 
-// ─── 테이블 행 컴포넌트 ───────────────────────────────────────────────────────
-function TableRow({ label, value }: { label: string; value?: string | null }) {
-  return (
-    <div className="flex border-b border-slate-200 last:border-b-0">
-      <span className="w-24 shrink-0 border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
-        {label}
-      </span>
-      <span className="flex-1 px-3 py-2.5 text-xs font-medium text-seah-orange-500">
-        {value || ''}
-      </span>
-    </div>
-  );
-}
-
 // ─── 물품 아이템 카드 ─────────────────────────────────────────────────────────
 function ItemCard({
   seq,
-  docNo,
   itemName,
   itemSpec,
   maker,
@@ -111,65 +96,78 @@ function ItemCard({
   const [photoIdx, setPhotoIdx] = useState<number | null>(null);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      {/* 자재 정보 헤더 */}
-      <div className="bg-seah-orange-200 py-2 text-center text-sm font-semibold text-seah-orange-800">
-        자재 정보
-      </div>
-
-      {/* Row 1: 반출일코드 | 순번 */}
-      <div className="flex border-b border-slate-200">
-        <div className="flex flex-1 items-stretch border-r border-slate-200">
-          <span className="flex w-24 shrink-0 items-center border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
-            반출일코드
-          </span>
-          <span className="flex flex-1 items-center px-3 py-2.5 text-xs font-medium text-sky-600">
-            {docNo}
-          </span>
-        </div>
-        <div className="flex w-28 items-stretch">
-          <span className="flex w-12 shrink-0 items-center border-r border-slate-200 bg-slate-50 px-2 py-2.5 text-xs text-slate-500">
-            순번
-          </span>
-          <span className="flex flex-1 items-center justify-center px-2 py-2.5 text-xs font-medium text-seah-orange-500">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      {/* 카드 헤더 */}
+      <div className="flex items-center justify-between bg-gradient-to-r from-seah-orange-500 to-seah-orange-400 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="flex size-6 items-center justify-center rounded-full bg-white/25 text-xs font-bold text-white">
             {seq}
           </span>
+          <span className="text-sm font-bold text-white">{itemName}</span>
         </div>
+        {quantity != null && (
+          <span className="rounded-full bg-white/20 px-3 py-0.5 text-sm font-bold text-white">
+            {quantity}
+            <span className="ml-0.5 text-xs font-medium opacity-80">{unitName ?? ''}</span>
+          </span>
+        )}
       </div>
 
-      {/* 자재 정보 행들 */}
-      <TableRow label="품명" value={itemName} />
-      <TableRow label="규격" value={itemSpec} />
-      <TableRow label="단위" value={unitName} />
-      <TableRow label="메이커" value={maker} />
-      <TableRow label="반출 수량" value={quantity != null ? String(quantity) : null} />
-      <TableRow label="반출사유" value={reason} />
-      <TableRow label="비고" value={note} />
-
-      {/* 반출 사진 헤더 */}
-      <div className="border-t border-slate-200 bg-slate-100 py-2 text-center text-sm font-semibold text-slate-500">
-        반출 사진
+      {/* 상세 정보 그리드 */}
+      <div className="grid grid-cols-2 gap-px bg-slate-100 border-b border-slate-100">
+        {[
+          { label: '규격', value: itemSpec },
+          { label: '메이커', value: maker },
+        ].map(({ label, value }) => (
+          <div key={label} className="bg-white px-4 py-3">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              {label}
+            </p>
+            <p className="text-sm font-medium text-seah-gray-500">{value || '-'}</p>
+          </div>
+        ))}
       </div>
 
-      {/* 사진 영역 */}
-      <div className="p-3">
-        {photos.length > 0 ? (
+      {/* 반출사유 / 비고 */}
+      <div className="divide-y divide-slate-100 px-4">
+        {reason && (
+          <div className="py-3">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              반출사유
+            </p>
+            <p className="text-sm text-seah-gray-500">{reason}</p>
+          </div>
+        )}
+        {note && (
+          <div className="py-3">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              비고
+            </p>
+            <p className="text-sm text-seah-gray-500">{note}</p>
+          </div>
+        )}
+      </div>
+
+      {/* 반출 사진 */}
+      {photos.length > 0 && (
+        <div className="border-t border-slate-100 px-4 pb-4 pt-3">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            반출 사진
+          </p>
           <div className="flex flex-wrap gap-2">
             {photos.map((src, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setPhotoIdx(i)}
-                className="size-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
+                className="size-18 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-xs transition-transform active:scale-95"
               >
                 <img src={src} alt={`사진 ${i + 1}`} className="size-full object-cover" />
               </button>
             ))}
           </div>
-        ) : (
-          <div className="flex min-h-[60px] items-center justify-center rounded-lg border border-dashed border-slate-300" />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 사진 전체보기 모달 */}
       {photoIdx !== null && (
