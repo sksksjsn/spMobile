@@ -86,14 +86,19 @@ function LogisticsCard({
   siteMap,
   deptMap,
   unitMap,
+  onClick,
 }: {
   item: LogisticsItem;
   siteMap: Record<string, string>;
   deptMap: Record<string, string>;
   unitMap: Record<string, string>;
+  onClick: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:bg-slate-50">
+    <div
+      className="cursor-pointer rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:bg-slate-50"
+      onClick={onClick}
+    >
       {/* Top row: docNo + status */}
       <div className="mb-3 flex items-center justify-between">
         <span className="text-[13px] font-bold tracking-tight text-seah-gray-500">
@@ -552,7 +557,14 @@ export function LogisticsListPage() {
           {!loading && !error && (
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {items.map((item) => (
-                <LogisticsCard key={item.docNo} item={item} siteMap={siteMap} deptMap={deptMap} unitMap={unitMap} />
+                <LogisticsCard
+                    key={item.docNo}
+                    item={item}
+                    siteMap={siteMap}
+                    deptMap={deptMap}
+                    unitMap={unitMap}
+                    onClick={() => navigate(`/logistics/${item.docNo}`)}
+                  />
               ))}
             </div>
           )}
