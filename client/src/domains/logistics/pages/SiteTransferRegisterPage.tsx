@@ -30,7 +30,7 @@ export function SiteTransferRegisterPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { sites, getDeptsBySite, loading: sitesLoading } = useSitesDept();
-  const { units } = useUnits();
+  const { units, loading: unitsLoading, error: unitsError } = useUnits();
 
   const [fromSite, setFromSite] = useState('');
   const [fromDept, setFromDept] = useState('');
@@ -342,9 +342,12 @@ export function SiteTransferRegisterPage() {
                       <select
                         value={row.unit}
                         onChange={(e) => updateRow(row.id, 'unit', e.target.value)}
+                        disabled={unitsLoading}
                         className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                       >
-                        <option value="">단위 선택</option>
+                        <option value="">
+                          {unitsLoading ? '로딩 중...' : unitsError ? '로드 실패' : '단위 선택'}
+                        </option>
                         {units.map((u) => (
                           <option key={u.unitCode} value={u.unitCode}>
                             {u.unitName}
