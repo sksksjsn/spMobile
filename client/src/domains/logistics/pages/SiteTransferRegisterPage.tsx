@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 import { useSitesDept } from '@/core/hooks/useSitesDept';
+import { useUnits } from '@/core/hooks';
 
 interface MaterialRow {
   id: number;
@@ -22,13 +23,14 @@ interface MaterialRow {
 let rowIdSeq = 1;
 
 function newRow(): MaterialRow {
-  return { id: rowIdSeq++, name: '', quantity: '', unit: 'EA' };
+  return { id: rowIdSeq++, name: '', quantity: '', unit: '' };
 }
 
 export function SiteTransferRegisterPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { sites, getDeptsBySite, loading: sitesLoading } = useSitesDept();
+  const { units } = useUnits();
 
   const [fromSite, setFromSite] = useState('');
   const [fromDept, setFromDept] = useState('');
@@ -342,9 +344,10 @@ export function SiteTransferRegisterPage() {
                         onChange={(e) => updateRow(row.id, 'unit', e.target.value)}
                         className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-seah-gray-500 focus:border-seah-orange-400 focus:outline-none focus:ring-1 focus:ring-seah-orange-400"
                       >
-                        {['EA', '개', '세트', 'KG', 'TON', 'M', 'BOX', '장'].map((u) => (
-                          <option key={u} value={u}>
-                            {u}
+                        <option value="">단위 선택</option>
+                        {units.map((u) => (
+                          <option key={u.unitCode} value={u.unitCode}>
+                            {u.unitName}
                           </option>
                         ))}
                       </select>
