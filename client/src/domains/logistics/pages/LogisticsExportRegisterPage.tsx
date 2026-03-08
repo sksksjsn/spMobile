@@ -54,7 +54,10 @@ export function LogisticsExportRegisterPage() {
     setEditingIndex,
     clearDraft,
   } = useExportDraftStore();
-  const { sites, depts } = useSitesDept();
+  const { sites, getDeptsBySite } = useSitesDept();
+
+  // 사업장에 해당하는 부서 목록
+  const filteredDepts = outSite ? getDeptsBySite(outSite) : [];
 
   // 최초 진입 시 담당자명 초기화
   useEffect(() => {
@@ -164,7 +167,10 @@ export function LogisticsExportRegisterPage() {
                 </label>
                 <select
                   value={outSite}
-                  onChange={(e) => setField('outSite', e.target.value)}
+                  onChange={(e) => {
+                    setField('outSite', e.target.value);
+                    setField('authorDept', '');
+                  }}
                   className={SELECT_CLS}
                 >
                   <option value="">사업장 선택</option>
@@ -208,18 +214,30 @@ export function LogisticsExportRegisterPage() {
                 <label className="mb-1 block text-xs font-semibold text-slate-500">
                   작성 담당자 부서명 <span className="text-rose-500">*</span>
                 </label>
-                <select
-                  value={authorDept}
-                  onChange={(e) => setField('authorDept', e.target.value)}
-                  className={SELECT_CLS}
-                >
-                  <option value="">부서를 선택해주세요</option>
-                  {depts.map((d) => (
-                    <option key={d.deptCode} value={d.deptCode}>
-                      {d.deptName}
+                <div className="relative">
+                  <select
+                    value={authorDept}
+                    onChange={(e) => setField('authorDept', e.target.value)}
+                    disabled={!outSite}
+                    className={SELECT_CLS}
+                  >
+                    <option value="">
+                      {outSite ? '부서를 선택해주세요' : '사업장을 먼저 선택해주세요'}
                     </option>
-                  ))}
-                </select>
+                    {filteredDepts.map((d) => (
+                      <option key={d.deptCode} value={d.deptCode}>
+                        {d.deptName}
+                      </option>
+                    ))}
+                  </select>
+                  {/* 사업장 미선택 시 클릭 감지 오버레이 */}
+                  {!outSite && (
+                    <div
+                      className="absolute inset-0 cursor-pointer"
+                      onClick={() => alert('먼저 반출 사업장을 선택해주세요.')}
+                    />
+                  )}
+                </div>
               </div>
 
               {/* 작성 담당자 연락처 */}
@@ -227,7 +245,7 @@ export function LogisticsExportRegisterPage() {
                 <label className="mb-1 block text-xs font-semibold text-slate-500">
                   작성 담당자 연락처
                 </label>
-                <div className="flex items-center gap-1.5">
+                <div className="grid grid-cols-[2.8rem_auto_1fr_auto_1fr] items-center gap-x-1">
                   <input
                     type="text"
                     inputMode="numeric"
@@ -235,9 +253,9 @@ export function LogisticsExportRegisterPage() {
                     placeholder="010"
                     value={authorPhone1}
                     onChange={(e) => setField('authorPhone1', e.target.value.replace(/\D/g, ''))}
-                    className={`w-16 ${PHONE_CLS}`}
+                    className={`min-w-0 ${PHONE_CLS}`}
                   />
-                  <span className="text-slate-400">-</span>
+                  <span className="text-center text-slate-400">-</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -245,9 +263,9 @@ export function LogisticsExportRegisterPage() {
                     placeholder="0000"
                     value={authorPhone2}
                     onChange={(e) => setField('authorPhone2', e.target.value.replace(/\D/g, ''))}
-                    className={`flex-1 ${PHONE_CLS}`}
+                    className={`min-w-0 w-full ${PHONE_CLS}`}
                   />
-                  <span className="text-slate-400">-</span>
+                  <span className="text-center text-slate-400">-</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -255,7 +273,7 @@ export function LogisticsExportRegisterPage() {
                     placeholder="0000"
                     value={authorPhone3}
                     onChange={(e) => setField('authorPhone3', e.target.value.replace(/\D/g, ''))}
-                    className={`flex-1 ${PHONE_CLS}`}
+                    className={`min-w-0 w-full ${PHONE_CLS}`}
                   />
                 </div>
               </div>
@@ -293,7 +311,7 @@ export function LogisticsExportRegisterPage() {
                 <label className="mb-1 block text-xs font-semibold text-slate-500">
                   협력업체 인수자 전화번호
                 </label>
-                <div className="flex items-center gap-1.5">
+                <div className="grid grid-cols-[2.8rem_auto_1fr_auto_1fr] items-center gap-x-1">
                   <input
                     type="text"
                     inputMode="numeric"
@@ -303,9 +321,9 @@ export function LogisticsExportRegisterPage() {
                     onChange={(e) =>
                       setField('receiverPhone1', e.target.value.replace(/\D/g, ''))
                     }
-                    className={`w-16 ${PHONE_CLS}`}
+                    className={`min-w-0 ${PHONE_CLS}`}
                   />
-                  <span className="text-slate-400">-</span>
+                  <span className="text-center text-slate-400">-</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -315,9 +333,9 @@ export function LogisticsExportRegisterPage() {
                     onChange={(e) =>
                       setField('receiverPhone2', e.target.value.replace(/\D/g, ''))
                     }
-                    className={`flex-1 ${PHONE_CLS}`}
+                    className={`min-w-0 w-full ${PHONE_CLS}`}
                   />
-                  <span className="text-slate-400">-</span>
+                  <span className="text-center text-slate-400">-</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -327,7 +345,7 @@ export function LogisticsExportRegisterPage() {
                     onChange={(e) =>
                       setField('receiverPhone3', e.target.value.replace(/\D/g, ''))
                     }
-                    className={`flex-1 ${PHONE_CLS}`}
+                    className={`min-w-0 w-full ${PHONE_CLS}`}
                   />
                 </div>
               </div>
