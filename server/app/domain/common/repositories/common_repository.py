@@ -1,6 +1,6 @@
 """
 Common Repository
-사업장(CM_BusiPlace), 부서(CM_CodeDetail MT20) 조회
+사업장(CM_BusiPlace), 부서(CM_CodeDetail MT20), 단위(CM_CodeDetail MT35) 조회
 """
 
 from sqlalchemy import select
@@ -28,6 +28,16 @@ class CommonRepository:
             select(CmCodeDetail)
             .where(CmCodeDetail.code_type == "MT20")
             .order_by(CmCodeDetail.mgt_char1, CmCodeDetail.sort_seq)
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_units(self) -> list[CmCodeDetail]:
+        """단위 목록 조회 - CM_CodeDetail.CODE_TYPE = 'MT35'"""
+        stmt = (
+            select(CmCodeDetail)
+            .where(CmCodeDetail.code_type == "MT35")
+            .order_by(CmCodeDetail.sort_seq)
         )
         result = await self.db.execute(stmt)
         return list(result.scalars().all())

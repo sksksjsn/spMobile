@@ -1,6 +1,6 @@
 """
 Common 도메인 스키마
-사업장, 부서 응답 모델
+사업장, 부서, 단위 응답 모델
 """
 
 from pydantic import BaseModel, Field
@@ -30,3 +30,18 @@ class SitesDeptResponse(BaseModel):
 
     sites: list[SiteSchema]
     depts: list[DeptSchema]
+
+
+class UnitSchema(BaseModel):
+    """단위 정보"""
+
+    unit_code: str = Field(alias="unitCode", description="단위 코드")
+    unit_name: str = Field(alias="unitName", description="단위명")
+
+    model_config = {"populate_by_name": True}
+
+
+class UnitsResponse(BaseModel):
+    """단위 목록 응답"""
+
+    units: list[UnitSchema]
