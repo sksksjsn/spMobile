@@ -13,6 +13,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
+import { useSitesDept } from '@/core/hooks/useSitesDept';
 import { logisticsApi } from '../api';
 import type { LogisticsDetail } from '../types';
 
@@ -182,6 +183,8 @@ export function LogisticsDetailPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { docNo } = useParams<{ docNo: string }>();
+  const { sites } = useSitesDept();
+  const siteMap = Object.fromEntries(sites.map((s) => [s.busiPlace, s.busiPlaceName]));
 
   const [activeTab, setActiveTab] = useState<TabKey>('문서');
   const [detail, setDetail] = useState<LogisticsDetail | null>(null);
@@ -296,7 +299,10 @@ export function LogisticsDetailPage() {
             {activeTab === '문서' && (
               <div className="px-5 pb-5 pt-2">
                 <ReadField label="반출입코드" value={detail.docNo} />
-                <ReadField label="반출 사업장" value={detail.busiPlace} />
+                <ReadField
+                  label="반출 사업장"
+                  value={siteMap[detail.busiPlace] ?? detail.busiPlace}
+                />
                 <ReadField
                   label="반출 일자"
                   value={detail.exportDate?.split('T')[0] ?? null}
@@ -322,6 +328,8 @@ export function LogisticsDetailPage() {
                 <ReadField label="업체명" value={detail.partnerCompany} />
                 <ReadField label="인수 담당자" value={detail.receiverName} />
                 <ReadField label="인수자 연락처" value={detail.receiverPhone} />
+                <ReadField label="반출 사유" value={detail.items[0]?.reason ?? null} />
+                <ReadField label="비고" value={detail.items[0]?.note ?? null} />
               </div>
             )}
 
