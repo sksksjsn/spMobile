@@ -79,8 +79,8 @@ class CommonService:
 
         transport_types = [
             TransportTypeSchema(
-                unit_code=row.code,
-                unit_name=row.code_name or row.code,
+                tran_code=row.code,
+                tran_name=row.code_name or row.code,
             )
             for row in rows
         ]

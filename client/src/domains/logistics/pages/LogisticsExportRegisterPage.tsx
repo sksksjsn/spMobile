@@ -361,8 +361,8 @@ export function LogisticsExportRegisterPage() {
                 >
                   <option value="">선택해주세요</option>
                   {transportTypes.map((t) => (
-                    <option key={t.unitCode} value={t.unitCode}>
-                      {t.unitName}
+                    <option key={t.tranCode} value={t.tranCode}>
+                      {t.tranName}
                     </option>
                   ))}
                 </select>

@@ -50,8 +50,8 @@ class UnitsResponse(BaseModel):
 class TransportTypeSchema(BaseModel):
     """운송 유형 정보"""
 
-    unit_code: str = Field(alias="unitCode", description="운송 유형 코드")
-    unit_name: str = Field(alias="unitName", description="운송 유형명")
+    tran_code: str = Field(alias="tranCode", description="운송 유형 코드")
+    tran_name: str = Field(alias="tranName", description="운송 유형명")
 
     model_config = {"populate_by_name": True}
 

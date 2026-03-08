@@ -42,8 +42,8 @@ export async function fetchUnits(): Promise<UnitsResponse> {
 }
 
 export interface TransportTypeItem {
-  unitCode: string;
-  unitName: string;
+  tranCode: string;
+  tranName: string;
 }
 
 export interface TransportTypesResponse {
