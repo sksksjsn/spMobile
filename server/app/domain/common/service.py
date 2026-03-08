@@ -43,7 +43,6 @@ class CommonService:
             for row in depts_rows
         ]
 
-        logger.info(f"sites={len(sites)}, depts={len(depts)} 조회 완료")
         return SitesDeptResponse(sites=sites, depts=depts)
 
     async def get_units(self) -> UnitsResponse:
@@ -61,5 +60,4 @@ class CommonService:
             for row in units_rows
         ]
 
-        logger.info(f"units={len(units)} 조회 완료")
         return UnitsResponse(units=units)

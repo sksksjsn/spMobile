@@ -12,6 +12,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, AxiosError } from 'axios';
 import { LoadingManager } from '../loading/LoadingManager';
 import { ApiErrorHandler } from '../errors/ApiErrorHandler';
+import { useAuthStore } from '../store/useAuthStore';
 
 class ApiClient {
   private instance: AxiosInstance;
@@ -93,10 +94,20 @@ class ApiClient {
 
         // 특정 상태 코드별 추가 처리
         if (ApiErrorHandler.isAuthError(error)) {
-          // TODO: 인증 에러 처리
+          // 인증 에러 처리
           // - 로그인 페이지로 리다이렉트
           // - 또는 토큰 갱신 시도
           console.warn('🔐 인증 에러:', errorData.message);
+
+          // 로그인 페이지가 아닌 경우에만 리다이렉트 (무한 루프 방지)
+          if (!window.location.pathname.includes('/login')) {
+            // 세션 정보 초기화 (Zustand store에서 직접 호출)
+            useAuthStore.getState().logout();
+            // 알림 메시지 표시
+            alert(errorData.message);
+            // 로그인 페이지로 이동
+            window.location.href = '/login';
+          }
         }
 
         // 변환된 에러 데이터 반환

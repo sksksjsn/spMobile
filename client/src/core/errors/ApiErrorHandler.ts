@@ -97,7 +97,7 @@ export class ApiErrorHandler {
       case 400:
         return '잘못된 요청입니다. 입력 내용을 확인해주세요.';
       case 401:
-        return '인증이 필요합니다. 다시 로그인해주세요.';
+        return '세션이 만료되었습니다. 보안을 위해 다시 로그인해주세요.';
       case 403:
         return '접근 권한이 없습니다.';
       case 404:
