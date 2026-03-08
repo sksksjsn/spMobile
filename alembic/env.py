@@ -48,6 +48,7 @@ from server.app.domain.auth.models import (  # noqa: E402, F401
     TbTokenBlacklist,
 )
 from server.app.domain.board.models.notice import WbBoardInfo  # noqa: E402, F401
+from server.app.domain.logistics.models import Aw01010, Aw01011  # noqa: E402, F401
 
 # Add more imports as you create new domains
 

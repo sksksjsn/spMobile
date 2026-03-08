@@ -20,71 +20,8 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 import type { LogisticsItem, LogisticsSearchParams } from '../types';
+import { logisticsApi } from '../api';
 import { useSitesDept } from '@/core/hooks/useSitesDept';
-
-// ─── Mock data (실제 API 연동 전 테스트용) ──────────────────────────
-const MOCK_ITEMS: LogisticsItem[] = [
-  {
-    docNo: 'P20250224001',
-    outSite: '포항',
-    inSite: '본사',
-    department: '설비팀(포항)',
-    manager: '김경호',
-    company: '(주)신화금속',
-    material: '드럼',
-    quantity: 1,
-    unit: '개',
-    securityCheck: 'Y',
-    receiverCheck: 'N',
-    status: '반출',
-    regDt: '2025-02-24T09:30:00',
-  },
-  {
-    docNo: 'P20250223005',
-    outSite: '창원',
-    inSite: '포항',
-    department: '생산팀(창원)',
-    manager: '이민수',
-    company: '(주)대한철강',
-    material: '파이프',
-    quantity: 20,
-    unit: 'EA',
-    securityCheck: 'Y',
-    receiverCheck: 'Y',
-    status: '반입',
-    regDt: '2025-02-23T14:15:00',
-  },
-  {
-    docNo: 'P20250222003',
-    outSite: '본사',
-    inSite: '창원',
-    department: '자재팀(본사)',
-    manager: '박지영',
-    company: '삼성중공업',
-    material: '볼트/너트',
-    quantity: 500,
-    unit: '세트',
-    securityCheck: 'N',
-    receiverCheck: 'N',
-    status: '반출',
-    regDt: '2025-02-22T11:00:00',
-  },
-  {
-    docNo: 'P20250221008',
-    outSite: '군산',
-    inSite: '포항',
-    department: '품질팀(군산)',
-    manager: '최준호',
-    company: '현대제철',
-    material: '강판',
-    quantity: 10,
-    unit: '장',
-    securityCheck: 'Y',
-    receiverCheck: 'Y',
-    status: '반입',
-    regDt: '2025-02-21T08:45:00',
-  },
-];
 
 const SIDEBAR_NAV = [
   { icon: Home, label: '홈', active: false, path: '/' },
@@ -96,7 +33,8 @@ const SIDEBAR_NAV = [
 const DATE_QUICK = ['전체', '1일', '1주', '1개월', '1년'] as const;
 type DateQuick = (typeof DATE_QUICK)[number];
 
-function formatDate(dt: string): string {
+function formatDate(dt: string | null): string {
+  if (!dt) return '';
   const d = new Date(dt);
   if (isNaN(d.getTime())) return '';
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
@@ -155,27 +93,32 @@ function LogisticsCard({ item }: { item: LogisticsItem }) {
 
       {/* Site row */}
       <div className="mb-2 flex items-center gap-1.5 text-sm text-slate-600">
-        <span className="font-medium">{item.outSite}</span>
-        <ChevronRight size={14} className="text-slate-300" />
-        <span className="font-medium">{item.inSite}</span>
+        <span className="font-medium">{item.outSiteName || item.outSite}</span>
       </div>
 
       {/* Dept / Manager */}
       <div className="mb-2 text-xs text-slate-500">
-        {item.department} / {item.manager}
+        {item.department}
+        {item.manager && ` / ${item.manager}`}
       </div>
 
       {/* Company */}
-      <div className="mb-3 text-xs font-medium text-slate-500">{item.company}</div>
+      {item.company && (
+        <div className="mb-3 text-xs font-medium text-slate-500">{item.company}</div>
+      )}
 
       {/* Material */}
-      <div className="mb-3 text-sm font-semibold text-seah-gray-500">
-        {item.material}{' '}
-        <span className="font-normal text-slate-500">
-          {item.quantity}
-          {item.unit}
-        </span>
-      </div>
+      {item.material && (
+        <div className="mb-3 text-sm font-semibold text-seah-gray-500">
+          {item.material}{' '}
+          {item.quantity != null && (
+            <span className="font-normal text-slate-500">
+              {item.quantity}
+              {item.unit ?? ''}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Bottom row: checks + date */}
       <div className="flex items-center justify-between border-t border-slate-100 pt-3">
@@ -231,6 +174,7 @@ export function LogisticsListPage() {
   // Data state
   const [items, setItems] = useState<LogisticsItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Load on mount
   useEffect(() => {
@@ -250,21 +194,17 @@ export function LogisticsListPage() {
     };
   }
 
-  function handleSearch() {
+  async function handleSearch() {
     setLoading(true);
-    // TODO: 실제 API 연동 시 logisticsApi.getList(buildParams())으로 교체
-    setTimeout(() => {
-      const p = buildParams();
-      const filtered = MOCK_ITEMS.filter((item) => {
-        if (p.outSite && item.outSite !== p.outSite) return false;
-        if (p.inSite && item.inSite !== p.inSite) return false;
-        if (p.company && !item.company.includes(p.company)) return false;
-        if (p.material && !item.material.includes(p.material)) return false;
-        return true;
-      });
-      setItems(filtered);
+    setError(null);
+    try {
+      const res = await logisticsApi.getList(buildParams());
+      setItems(res.items);
+    } catch {
+      setError('목록을 불러오는 중 오류가 발생했습니다.');
+    } finally {
       setLoading(false);
-    }, 300);
+    }
   }
 
   function handleReset() {
@@ -582,13 +522,19 @@ export function LogisticsListPage() {
             <div className="py-16 text-center text-sm text-slate-400">불러오는 중...</div>
           )}
 
-          {!loading && items.length === 0 && (
+          {!loading && error && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 py-8 text-center text-sm text-rose-500 shadow-sm">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && items.length === 0 && (
             <div className="rounded-xl border border-slate-200 bg-white py-16 text-center text-sm text-slate-400 shadow-sm">
               검색 결과가 없습니다.
             </div>
           )}
 
-          {!loading && (
+          {!loading && !error && (
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {items.map((item) => (
                 <LogisticsCard key={item.docNo} item={item} />
