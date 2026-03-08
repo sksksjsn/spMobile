@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, FolderOpen, Layers, LogOut, Package, X } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
+import { useUnits } from '@/core/hooks';
 import { useExportDraftStore } from '../store/useExportDraftStore';
-
-const UNITS = ['EA', '개', '세트', 'KG', 'TON', 'M', 'BOX', '장'];
 
 const INPUT_CLS =
   'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-seah-gray-500 ' +
@@ -20,6 +19,7 @@ const LABEL_CLS = 'mb-1 block text-xs font-semibold text-slate-500';
 export function ExportItemAddPage() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { units } = useUnits();
   const { items, editingIndex, addItem, updateItem, setEditingIndex } = useExportDraftStore();
 
   const isEdit = editingIndex !== null;
@@ -27,7 +27,7 @@ export function ExportItemAddPage() {
 
   const [name, setName] = useState(editTarget?.name ?? '');
   const [spec, setSpec] = useState(editTarget?.spec ?? '');
-  const [unit, setUnit] = useState(editTarget?.unit ?? 'EA');
+  const [unit, setUnit] = useState(editTarget?.unit ?? '');
   const [maker, setMaker] = useState(editTarget?.maker ?? '');
   const [quantity, setQuantity] = useState(editTarget?.quantity ?? '');
   const [reason, setReason] = useState(editTarget?.reason ?? '');
@@ -189,9 +189,10 @@ export function ExportItemAddPage() {
                     onChange={(e) => setUnit(e.target.value)}
                     className={SELECT_CLS}
                   >
-                    {UNITS.map((u) => (
-                      <option key={u} value={u}>
-                        {u}
+                    <option value="">단위 선택</option>
+                    {units.map((u) => (
+                      <option key={u.unitCode} value={u.unitCode}>
+                        {u.unitName}
                       </option>
                     ))}
                   </select>
