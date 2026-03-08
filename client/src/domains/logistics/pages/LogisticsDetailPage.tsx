@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/core/store/useAuthStore';
 import { useSitesDept } from '@/core/hooks/useSitesDept';
+import { useUnits } from '@/core/hooks/useUnits';
 import { logisticsApi } from '../api';
 import type { LogisticsDetail } from '../types';
 
@@ -69,24 +70,40 @@ function SignatureCard({
   );
 }
 
+// ─── 테이블 행 컴포넌트 ───────────────────────────────────────────────────────
+function TableRow({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div className="flex border-b border-slate-200 last:border-b-0">
+      <span className="w-24 shrink-0 border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
+        {label}
+      </span>
+      <span className="flex-1 px-3 py-2.5 text-xs font-medium text-seah-orange-500">
+        {value || ''}
+      </span>
+    </div>
+  );
+}
+
 // ─── 물품 아이템 카드 ─────────────────────────────────────────────────────────
 function ItemCard({
   seq,
+  docNo,
   itemName,
   itemSpec,
   maker,
   quantity,
-  unitCode,
+  unitName,
   reason,
   note,
   photos,
 }: {
   seq: number;
+  docNo: string;
   itemName: string;
   itemSpec: string | null;
   maker: string | null;
   quantity: number | null;
-  unitCode: string | null;
+  unitName: string | null;
   reason: string | null;
   note: string | null;
   photos: string[];
@@ -94,57 +111,49 @@ function ItemCard({
   const [photoIdx, setPhotoIdx] = useState<number | null>(null);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      {/* 번호 + 이름 */}
-      <div className="mb-3 flex items-center gap-2">
-        <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-seah-orange-100 text-[11px] font-bold text-seah-orange-500">
-          {seq}
-        </span>
-        <span className="text-sm font-bold text-seah-gray-500">{itemName}</span>
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      {/* 자재 정보 헤더 */}
+      <div className="bg-seah-orange-200 py-2 text-center text-sm font-semibold text-seah-orange-800">
+        자재 정보
       </div>
 
-      {/* 상세 정보 */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-500">
-        {itemSpec && (
-          <>
-            <span className="font-semibold text-slate-400">규격</span>
-            <span>{itemSpec}</span>
-          </>
-        )}
-        {maker && (
-          <>
-            <span className="font-semibold text-slate-400">메이커</span>
-            <span>{maker}</span>
-          </>
-        )}
-        {quantity != null && (
-          <>
-            <span className="font-semibold text-slate-400">수량</span>
-            <span>
-              {quantity} {unitCode ?? ''}
-            </span>
-          </>
-        )}
-        {reason && (
-          <>
-            <span className="font-semibold text-slate-400">사유</span>
-            <span>{reason}</span>
-          </>
-        )}
-        {note && (
-          <>
-            <span className="font-semibold text-slate-400">비고</span>
-            <span>{note}</span>
-          </>
-        )}
+      {/* Row 1: 반출일코드 | 순번 */}
+      <div className="flex border-b border-slate-200">
+        <div className="flex flex-1 items-stretch border-r border-slate-200">
+          <span className="flex w-24 shrink-0 items-center border-r border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
+            반출일코드
+          </span>
+          <span className="flex flex-1 items-center px-3 py-2.5 text-xs font-medium text-sky-600">
+            {docNo}
+          </span>
+        </div>
+        <div className="flex w-28 items-stretch">
+          <span className="flex w-12 shrink-0 items-center border-r border-slate-200 bg-slate-50 px-2 py-2.5 text-xs text-slate-500">
+            순번
+          </span>
+          <span className="flex flex-1 items-center justify-center px-2 py-2.5 text-xs font-medium text-seah-orange-500">
+            {seq}
+          </span>
+        </div>
       </div>
 
-      {/* 사진 */}
-      {photos.length > 0 && (
-        <div className="mt-3">
-          <p className="mb-1.5 text-[11px] font-semibold text-slate-400">
-            첨부 사진 ({photos.length})
-          </p>
+      {/* 자재 정보 행들 */}
+      <TableRow label="품명" value={itemName} />
+      <TableRow label="규격" value={itemSpec} />
+      <TableRow label="단위" value={unitName} />
+      <TableRow label="메이커" value={maker} />
+      <TableRow label="반출 수량" value={quantity != null ? String(quantity) : null} />
+      <TableRow label="반출사유" value={reason} />
+      <TableRow label="비고" value={note} />
+
+      {/* 반출 사진 헤더 */}
+      <div className="border-t border-slate-200 bg-slate-100 py-2 text-center text-sm font-semibold text-slate-500">
+        반출 사진
+      </div>
+
+      {/* 사진 영역 */}
+      <div className="p-3">
+        {photos.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {photos.map((src, i) => (
               <button
@@ -157,8 +166,10 @@ function ItemCard({
               </button>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex min-h-[60px] items-center justify-center rounded-lg border border-dashed border-slate-300" />
+        )}
+      </div>
 
       {/* 사진 전체보기 모달 */}
       {photoIdx !== null && (
@@ -184,7 +195,9 @@ export function LogisticsDetailPage() {
   const navigate = useNavigate();
   const { docNo } = useParams<{ docNo: string }>();
   const { sites } = useSitesDept();
+  const { units } = useUnits();
   const siteMap = Object.fromEntries(sites.map((s) => [s.busiPlace, s.busiPlaceName]));
+  const unitMap = Object.fromEntries(units.map((u) => [u.unitCode, u.unitName]));
 
   const [activeTab, setActiveTab] = useState<TabKey>('문서');
   const [detail, setDetail] = useState<LogisticsDetail | null>(null);
@@ -346,11 +359,12 @@ export function LogisticsDetailPage() {
                       <ItemCard
                         key={item.itemSeq}
                         seq={item.itemSeq}
+                        docNo={detail.docNo}
                         itemName={item.itemName}
                         itemSpec={item.itemSpec}
                         maker={item.maker}
                         quantity={item.quantity}
-                        unitCode={item.unitCode}
+                        unitName={item.unitCode ? (unitMap[item.unitCode] ?? item.unitCode) : null}
                         reason={item.reason}
                         note={item.note}
                         photos={item.photos}
