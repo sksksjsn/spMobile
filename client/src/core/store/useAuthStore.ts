@@ -55,6 +55,23 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // 토큰 만료 여부 확인: 만료된 경우 인증 상태 초기화
+        if (state?.token) {
+          try {
+            const payload = JSON.parse(atob(state.token.split('.')[1]));
+            if (payload.exp * 1000 < Date.now()) {
+              state.isAuthenticated = false;
+              state.user = null;
+              state.token = null;
+            }
+          } catch {
+            state.isAuthenticated = false;
+            state.user = null;
+            state.token = null;
+          }
+        }
+      },
     }
   )
 );
